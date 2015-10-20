@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <Button
+        android:id="@+id/startservice"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Service to send Notification"
+        />
+    <Button
+        android:id="@+id/stopservice"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Service"
+        />
+    <TextView
+        android:id="@+id/lat"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="hello"
+        android:layout_below="@+id/longi"
+        android:layout_alignLeft="@+id/longi"
+        android:layout_alignStart="@+id/longi" />
+
+    <TextView
+        android:id="@+id/longi"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="hello"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="144dp"
+        android:layout_marginStart="144dp" />
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/Stmap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" />
+
+
+</LinearLayout>
