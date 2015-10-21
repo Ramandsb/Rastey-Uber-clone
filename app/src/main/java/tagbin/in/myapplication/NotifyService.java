@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -34,6 +35,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -48,9 +57,10 @@ public class NotifyService extends Service {
     final static String STOP_SERVICE = "";
     final static int RQS_STOP_SERVICE = 1;
     String apikey= "AIzaSyDCppQZn2Ug7VbZB80u3aI8epA6P7ebuGM";
+    String macAddress;
 
 
-    NotifyServiceReceiver notifyServiceReceiver;
+//    NotifyServiceReceiver notifyServiceReceiver;
 
     private static final int MY_NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
@@ -63,6 +73,7 @@ public class NotifyService extends Service {
     public MyLocationListener listener;
     public Location previousBestLocation = null;
     String Longitude,Latitude;
+    String url="http://leanmenu.com/api/";
 
     Intent intent;
     int counter = 0;
@@ -70,7 +81,7 @@ public class NotifyService extends Service {
 
     @Override
     public void onCreate() {
-        notifyServiceReceiver = new NotifyServiceReceiver();
+//        notifyServiceReceiver = new NotifyServiceReceiver();
         super.onCreate();
         intent = new Intent(BROADCAST_ACTION);
     }
@@ -80,18 +91,21 @@ public class NotifyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO Auto-generated method stub
+        WifiManager wimanager = (WifiManager) NotifyService.this.getSystemService(Context.WIFI_SERVICE);
+         macAddress = wimanager.getConnectionInfo().getMacAddress();
+        Log.d("mac",macAddress);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION);
-        registerReceiver(notifyServiceReceiver, intentFilter);
+//        registerReceiver(notifyServiceReceiver, intentFilter);
 
         Toast.makeText(NotifyService.this, "service toast", Toast.LENGTH_SHORT).show();
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100,0, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100,0, listener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000,1, listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000,1, listener);
 
 
 //        return super.onStartCommand(intent, flags, startId);
@@ -151,7 +165,7 @@ public class NotifyService extends Service {
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub
-        this.unregisterReceiver(notifyServiceReceiver);
+//        this.unregisterReceiver(notifyServiceReceiver);
         super.onDestroy();
         sendBroadcast(new Intent("YouWillNeverKillMe"));
     }
@@ -177,17 +191,17 @@ public class NotifyService extends Service {
         return t;
     }
 
-    public class NotifyServiceReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context arg0, Intent arg1) {
-            // TODO Auto-generated method stub
-            int rqs = arg1.getIntExtra("RQS", 0);
-            if (rqs == RQS_STOP_SERVICE){
-                stopSelf();
-            }
-        }
-    }
+//    public class NotifyServiceReceiver extends BroadcastReceiver {
+//
+//        @Override
+//        public void onReceive(Context arg0, Intent arg1) {
+//            // TODO Auto-generated method stub
+//            int rqs = arg1.getIntExtra("RQS", 0);
+//            if (rqs == RQS_STOP_SERVICE){
+//                stopSelf();
+//            }
+//        }
+//    }
     public class MyLocationListener implements LocationListener
     {
 
@@ -208,7 +222,7 @@ public class NotifyService extends Service {
                 i.putExtra("myLong",longiString);
 
                 sendBroadcast(i);
-//                makeRequest(latiString,longiString);
+                makeRequest(latiString,longiString);
 
 
 
@@ -233,48 +247,54 @@ public class NotifyService extends Service {
 
         }
 
-//        private void makeRequest(final String lati,final String longi) {
-//
-//            RequestQueue requestQueue = Volley.newRequestQueue(NotifyService.this);
-//            CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, url, null,
-//                    new Response.Listener<JSONObject>() {
-//                        @Override
-//                        public void onResponse(JSONObject response) {
-//
-//
-////
-//                            Log.v("writtem:%n %s", response.toString());
-//
-//
-//                        }
-//
-//                    },
-//
-//                    new Response.ErrorListener() {
-//
-//                        @Override
-//                        public void onErrorResponse(VolleyError error) {
-//                            Log.v("error:%n %s", error.toString());
-//                            Toast.makeText(NotifyService.this, "Permission Denied !!", Toast.LENGTH_LONG);
-//
-//
-//                        }
-//                    }) {
-//                protected Map<String, String> getParams() throws AuthFailureError {
-//                    Map<String, String> params = new HashMap<String, String>();
-//                    params.put("latitude", lati);
-//                    params.put("longitude", longi);
-//
-//                    return params;
-//                }
-//
-//
-//            };
-//            jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsObjRequest);
-////        requestQueue.cancelAll(tag);
-//
-//        }
+        private void makeRequest(final String lati,final String longi) {
+            Log.v("latlong values:%n %s", lati +"  "+ longi);
+
+
+            RequestQueue requestQueue = Volley.newRequestQueue(NotifyService.this);
+            CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+
+
+                            Log.v("writtem:%n %s", response.toString());
+
+
+                            Toast.makeText(NotifyService.this, response.toString(), Toast.LENGTH_LONG);
+
+
+                        }
+
+                    },
+
+                    new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.v("error:%n %s", error.toString());
+                            Toast.makeText(NotifyService.this, error.toString(), Toast.LENGTH_LONG);
+
+
+                        }
+                    }) {
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("driver_id", macAddress);
+                    params.put("lat", lati);
+                    params.put("long", longi);
+
+                    return params;
+                }
+
+
+            };
+            jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsObjRequest);
+//        requestQueue.cancelAll(tag);
+
+        }
 
     }
 

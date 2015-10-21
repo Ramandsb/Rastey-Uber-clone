@@ -25,45 +25,26 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener {
+public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener  {
 
    static Double mylat, mylong; public static final String BROADCAST_ACTION = "Hello World";
     TextView latTv,longTv;
     private GoogleMap mMap;
+    LatLng latLng;
     
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_service);
-        Button buttonStartService = (Button)findViewById(R.id.startservice);
-        Button buttonStopService = (Button)findViewById(R.id.stopservice);
         latTv = (TextView) findViewById(R.id.lat);
         longTv = (TextView) findViewById(R.id.longi);
         registerReceiver(uiUpdated, new IntentFilter("LOCATION_UPDATED"));
         setUpMapIfNeeded();
 
-        buttonStartService.setOnClickListener(new Button.OnClickListener() {
+        Intent intent = new Intent(StartService.this, NotifyService.class);
+        StartService.this.startService(intent);
 
-            @Override
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                Intent intent = new Intent(StartService.this, NotifyService.class);
-                StartService.this.startService(intent);
-            }
-        });
-
-        buttonStopService.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                Intent intent = new Intent();
-                intent.setAction(NotifyService.ACTION);
-                intent.putExtra("RQS", NotifyService.STOP_SERVICE);
-                sendBroadcast(intent);
-            }
-        });
 
     }
 
@@ -78,6 +59,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 mMap.setOnMarkerDragListener(this);
                 mMap.setOnMapLongClickListener(this);
                 mMap.setOnMapClickListener(this);
+                mMap.setMyLocationEnabled(true);
 
                 CameraPosition INIT =
                         new CameraPosition.Builder()
@@ -124,18 +106,19 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 //                    .position( new LatLng(mylat, mylong) )
 //                    .title("Location")
 //                    .snippet("First Marker")).showInfoWindow();
-            LatLng latLng = new LatLng(mylat, mylong);
+             latLng = new LatLng(mylat, mylong);
             latlong.add(latLng);
             int i =0;
 
                 mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(latlong.get(i)));
+//                mMap.addMarker(new MarkerOptions().position(latlong.get(i)));
 
             // Showing the current location in Google Map
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latlong.get(i)));
 
             // Zoom in the Google Map
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+//            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
 
         }
@@ -175,5 +158,11 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         Toast.makeText(getApplicationContext(), "Marker Dragged..!", Toast.LENGTH_LONG).show();
 
 
+    }
+
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return true;
     }
 }
