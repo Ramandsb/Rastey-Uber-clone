@@ -42,6 +42,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.GoogleMap;
 
 import org.json.JSONObject;
 
@@ -104,8 +105,8 @@ public class NotifyService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000,1, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000,1, listener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000,1, listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,0, listener);
 
 
 //        return super.onStartCommand(intent, flags, startId);
@@ -205,8 +206,8 @@ public class NotifyService extends Service {
     public class MyLocationListener implements LocationListener
     {
 
-        public void onLocationChanged(final Location loc)
-        {
+
+        public void onLocationChanged(final Location loc) {
             Log.i("*****************", "Location changed");
             if(isBetterLocation(loc, previousBestLocation)) {
                 String latiString = Double.toString(loc.getLatitude());
@@ -220,7 +221,6 @@ public class NotifyService extends Service {
                 Intent i = new Intent("LOCATION_UPDATED");
                 i.putExtra("myLat",latiString);
                 i.putExtra("myLong",longiString);
-
                 sendBroadcast(i);
                 makeRequest(latiString,longiString);
 

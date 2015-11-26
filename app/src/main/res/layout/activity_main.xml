@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#DCDCDC"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout4">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,59 +52,9 @@
         android:background="#1111"
         android:layout_gravity="center_horizontal"
 
-        android:layout_marginBottom="50dp"
-        android:layout_above="@+id/linearLayout"
-        android:layout_centerHorizontal="true" />
-
-
-
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:id="@+id/linearLayout"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginBottom="10dp"
-        android:layout_above="@+id/linearLayout2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <EditText
-            android:id="@+id/uname"
-            android:layout_width="match_parent"
-            android:layout_gravity="bottom"
-            android:layout_height="40dp"
-            android:hint="Username"
-            android:paddingLeft="20dp"
-            android:inputType="textPersonName"
-            android:background="@android:color/transparent"
-            >
-        </EditText>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_above="@+id/button"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp"
-        android:id="@+id/linearLayout2">
-
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:inputType="textPassword"
-            android:layout_gravity="bottom"
-            android:hint="Password"
-            android:paddingLeft="20dp"
-            android:background="@android:color/transparent"
-            />
-    </LinearLayout>
+        android:layout_below="@+id/linearLayout4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="49dp" />
 
 
     <!--<Button-->
@@ -121,25 +72,7 @@
 
 
 
-    <!--</LinearLayout>-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom"
-        ></LinearLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Sign up"
-        android:background="#929497"
-        android:layout_gravity="bottom"
-        android:onClick="signup"
-        android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/button4" />
 
     <Button
 
@@ -150,25 +83,37 @@
         android:background="#929497"
         android:id="@+id/button"
         android:onClick="login"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_above="@+id/linearLayout3"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-    <LinearLayout
+        android:layout_marginTop="79dp"
+        android:layout_below="@+id/vehicalno"
+        android:layout_centerHorizontal="true" />
+
+
+    <EditText
+        android:id="@+id/name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginBottom="3dp"
-        android:layout_marginTop="20dp"
-        android:layout_above="@+id/button4"
-        android:id="@+id/linearLayout3">
+        android:layout_gravity="bottom"
+        android:layout_height="40dp"
+        android:hint="Name"
+        android:layout_margin="20dp"
+        android:paddingLeft="20dp"
+        android:inputType="textPersonName"
+        android:background="@android:color/transparent"
+        android:layout_centerVertical="true">
+    </EditText>
 
-    </LinearLayout>
-
-
+    <EditText
+        android:id="@+id/vehicalno"
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom"
+        android:layout_height="40dp"
+        android:hint="Vehical No."
+        android:paddingLeft="20dp"
+        android:inputType="textPersonName"
+        android:background="@android:color/transparent"
+        android:layout_below="@+id/name"
+        android:layout_alignLeft="@+id/name"
+        android:layout_alignStart="@+id/name">
+    </EditText>
 
 
     <!--&lt;!&ndash; android:layout_marginTop="?android:attr/actionBarSize"&ndash;&gt;-->

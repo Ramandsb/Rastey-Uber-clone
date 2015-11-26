@@ -7,30 +7,25 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    String username, password, LoginStatus, User_type, First_name = null;
-    public static final String MyPREFERENCES = "MyPrefs";
-    public static final String Auth_keypref = "MyAuth";
-    public static final String Statuspref = "MyStatus";
-    public static final String User_Typepref = "MyUsertype";
-    public static final String User_Namepref = "MyUserName";
-    SharedPreferences sharedpreferences;
-    private String urlJsonObj = "http://192.168.2.5";
-
-    // json array response url
-    private String urlJsonArry = "http://192.168.2.5/login.php";
-    String Auth_key = "";
-    String Auth_key1;
+    String drivername, vehicalno, LoginStatus, User_type, First_name = null;
+    EditText name,cabno;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        name= (EditText) findViewById(R.id.name);
+        cabno= (EditText) findViewById(R.id.vehicalno);
     }
 
     public void login(View v){
+        drivername= name.getText().toString();
+
+        vehicalno= cabno.getText().toString();
         Intent i = new Intent(MainActivity.this,StartService.class);
                 startActivity(i);
 
