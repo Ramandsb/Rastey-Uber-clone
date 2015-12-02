@@ -11,12 +11,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.gms.auth.api.Auth;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -52,8 +55,17 @@ public class SplashActivity extends Activity {
     // A runnable executed when the progressbar finishes which starts the HomeActivity.
     private Runnable loadHomeActivity = new Runnable() {
         public void run() {
+            SharedPreferences sharedPref = getApplication().getSharedPreferences(LoginActivity.LOGINDETAILS, MODE_PRIVATE);
+            String Auth_key=sharedPref.getString("auth_key","");
+
+            if (Auth_key.equals("")){
+                Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+                startActivity(i);
+            }else{
+                Log.d("Auth_key", Auth_key);
             Intent intenthome = new Intent(SplashActivity.this, StartService.class);
             startActivity(intenthome);
+        }
         }
 
     };

@@ -3,10 +3,14 @@ package tagbin.in.myapplication.Gcm;
 
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.PowerManager;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import tagbin.in.myapplication.R;
+import tagbin.in.myapplication.Slider.ImageTouchSlider;
 
 public class WakeUpAct extends Activity {
     PowerManager pm;
@@ -44,23 +49,22 @@ public class WakeUpAct extends Activity {
         kl.disableKeyguard();// dismiss the keyguard
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.ring);
         mp.start();
-        Button b1 = (Button) findViewById(R.id.Accept);
-        Button b2 = (Button) findViewById(R.id.Reject);
-        b1.setOnClickListener(new View.OnClickListener() {
+
+        FloatingActionButton accept = (FloatingActionButton) findViewById(R.id.Accept);
+        FloatingActionButton reject = (FloatingActionButton) findViewById(R.id.Reject);
+
+        accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mp.stop();
             }
         });
-        b2.setOnClickListener(new View.OnClickListener() {
+        reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mp.stop();
             }
         });
-
-
-
 
     }
 

@@ -3,32 +3,14 @@ package tagbin.in.myapplication;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
-import android.widget.Toast;
-import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -41,13 +23,17 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.GoogleMap;
 
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import tagbin.in.myapplication.Volley.AppController;
+import tagbin.in.myapplication.Volley.CustomRequest;
 
 /**
  * Created by Chetan on 10/16/2015.
@@ -57,7 +43,7 @@ public class NotifyService extends Service {
     final static String ACTION = "NotifyServiceAction";
     final static String STOP_SERVICE = "";
     final static int RQS_STOP_SERVICE = 1;
-    String apikey= "AIzaSyDCppQZn2Ug7VbZB80u3aI8epA6P7ebuGM";
+    String apikey = "AIzaSyDCppQZn2Ug7VbZB80u3aI8epA6P7ebuGM";
     String macAddress;
 
 
@@ -73,8 +59,9 @@ public class NotifyService extends Service {
     public LocationManager locationManager;
     public MyLocationListener listener;
     public Location previousBestLocation = null;
-    String Longitude,Latitude;
-    String url="http://leanmenu.com/api/";
+    String Longitude, Latitude;
+    //    String url="http://leanmenu.com/api/";
+    String url = "http://192.168.0.132/test/test.php";
 
     Intent intent;
     int counter = 0;
@@ -88,13 +75,12 @@ public class NotifyService extends Service {
     }
 
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO Auto-generated method stub
         WifiManager wimanager = (WifiManager) NotifyService.this.getSystemService(Context.WIFI_SERVICE);
-         macAddress = wimanager.getConnectionInfo().getMacAddress();
-        Log.d("mac",macAddress);
+        macAddress = wimanager.getConnectionInfo().getMacAddress();
+        Log.d("mac", macAddress);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION);
@@ -105,8 +91,8 @@ public class NotifyService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000,1, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,0, listener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, listener);
 
 
 //        return super.onStartCommand(intent, flags, startId);
@@ -192,7 +178,7 @@ public class NotifyService extends Service {
         return t;
     }
 
-//    public class NotifyServiceReceiver extends BroadcastReceiver {
+    //    public class NotifyServiceReceiver extends BroadcastReceiver {
 //
 //        @Override
 //        public void onReceive(Context arg0, Intent arg1) {
@@ -203,13 +189,12 @@ public class NotifyService extends Service {
 //            }
 //        }
 //    }
-    public class MyLocationListener implements LocationListener
-    {
+    public class MyLocationListener implements LocationListener {
 
 
         public void onLocationChanged(final Location loc) {
             Log.i("*****************", "Location changed");
-            if(isBetterLocation(loc, previousBestLocation)) {
+            if (isBetterLocation(loc, previousBestLocation)) {
                 String latiString = Double.toString(loc.getLatitude());
                 String longiString = Double.toString(loc.getLongitude());
                 Log.d("Lat LOng", loc.getLatitude() + "  " + loc.getLongitude());
@@ -219,83 +204,142 @@ public class NotifyService extends Service {
                 sendBroadcast(intent);
                 Log.d("values to check", latiString + "  " + longiString);
                 Intent i = new Intent("LOCATION_UPDATED");
-                i.putExtra("myLat",latiString);
-                i.putExtra("myLong",longiString);
+                i.putExtra("myLat", latiString);
+                i.putExtra("myLong", longiString);
                 sendBroadcast(i);
-                makeRequest(latiString,longiString);
-
-
+//                SharedPreferences sharedPref = getApplication().getSharedPreferences(LoginActivity.LOGINDETAILS,MODE_PRIVATE);
+//                String Auth_key=sharedPref.getString("auth_key","");
+//                if (Auth_key.equals("")) {
+//                   Log.d("Auth key","Invalid");
+//
+//
+//                }else{
+//                    makeRequest(latiString, longiString,Auth_key);
+//                }
+//            makeRequest(latiString, longiString);
+                request(latiString, longiString);
 
 
             }
         }
 
-        public void onProviderDisabled(String provider)
-        {
-            Toast.makeText( getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT ).show();
+        public void onProviderDisabled(String provider) {
+            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
         }
 
 
-        public void onProviderEnabled(String provider)
-        {
-            Toast.makeText( getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+        public void onProviderEnabled(String provider) {
+            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
         }
 
 
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
+        public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
 
-        private void makeRequest(final String lati,final String longi) {
-            Log.v("latlong values:%n %s", lati +"  "+ longi);
 
-
-            RequestQueue requestQueue = Volley.newRequestQueue(NotifyService.this);
-            CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-
-
-                            Log.v("writtem:%n %s", response.toString());
-
-
-                            Toast.makeText(NotifyService.this, response.toString(), Toast.LENGTH_LONG);
-
-
-                        }
-
-                    },
-
-                    new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("error:%n %s", error.toString());
-                            Toast.makeText(NotifyService.this, error.toString(), Toast.LENGTH_LONG);
-
-
-                        }
-                    }) {
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("driver_id", macAddress);
-                    params.put("lat", lati);
-                    params.put("long", longi);
-
-                    return params;
-                }
-
-
-            };
-            jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsObjRequest);
-//        requestQueue.cancelAll(tag);
-
-        }
-
+//        private void makeRequest(final String lati,final String longi) {
+//            Log.v("latlong values:%n %s", lati + "  " + longi + " ");
+//
+//
+//final String data="{\n" +
+//        "  \"lat\": \"lati\",\n" +
+//        "  \"long\": \"longi\"\n" +
+//        "}";
+//
+//            RequestQueue requestQueue = Volley.newRequestQueue(NotifyService.this);
+//            CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, url, null,
+//                    new Response.Listener<JSONObject>() {
+//                        @Override
+//                        public void onResponse(JSONObject response) {
+//
+//
+//
+//                            Log.v("writtem:%n %s", response.toString());
+//
+//
+//                            Toast.makeText(NotifyService.this, response.toString(), Toast.LENGTH_LONG);
+//
+//
+//                        }
+//
+//                    },
+//
+//                    new Response.ErrorListener() {
+//
+//                        @Override
+//                        public void onErrorResponse(VolleyError error) {
+//                            Log.v("error:%n %s", error.toString());
+//                            Toast.makeText(NotifyService.this, error.toString(), Toast.LENGTH_LONG);
+//
+//
+//                        }
+//                    }) {
+//                protected Map<String, String> getParams() throws AuthFailureError {
+//                    Map<String, String> params = new HashMap<String, String>();
+//                    params.put("data", data);
+//
+//                    Log.d("headers", params.toString());
+//                    return params;
+//                }
+//                public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("header1", data);
+//
+//                    Log.d("headers",headers.toString());
+//                return headers;
+//
+//            }
+//
+//
+//            };
+//            jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//            requestQueue.add(jsObjRequest);
+////        requestQueue.cancelAll(tag);
+//
+//        }
+//
+//    }
     }
+
+    public void request(final String lati,final String longi) {
+
+        final String data = "{\n" +
+                "  \"lat\": "+lati+",\n" +
+                "  \"long\": "+longi+"\n" +
+                "}";
+        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("response", response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //VolleyLog.d("error", "Error: " + error.getMessage());
+                Log.e("error", "" + error.getMessage() + "," + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("data", data);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                return params;
+            }
+
+        };
+
+        sr.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//
+        AppController.getInstance().addToRequestQueue(sr);
+    }
+
 
 }

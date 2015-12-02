@@ -173,7 +173,6 @@ public static final String EXTRA_MESSAGE = "message";
 //                                .anchor(0.5f, 0.5f).position(start));
 //                        latTv.setText("myLocationChange" + location.getLatitude() + " " + location.getLongitude());
 //                        LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-//
 //                        animateMarker(marker,ll,false);
 //
 //
