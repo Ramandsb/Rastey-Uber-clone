@@ -1,7 +1,10 @@
 package tagbin.in.myapplication;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -21,6 +24,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,9 +33,16 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -45,11 +56,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import tagbin.in.myapplication.Gcm.ShareExternalServer;
+import tagbin.in.myapplication.Volley.AppController;
 
 public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener  {
 
@@ -69,7 +85,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     long currtime = 0;
     Marker marker;
     LatLng start;
-//TextView orx,ory,orz;
+    String url ="http://192.168.0.9:8000/api/v1/CreateUserResource/logout/";
+
+    //TextView orx,ory,orz;
     ////////////////////GCM WORKING/////////////////////////////////
 public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -94,7 +112,8 @@ public static final String EXTRA_MESSAGE = "message";
     ////////
 
     ///////////////////////GCM END/////////////////////////////
-    
+    SharedPreferences sharedPreferences;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +122,8 @@ public static final String EXTRA_MESSAGE = "message";
         latTv = (TextView) findViewById(R.id.lat);
         longTv = (TextView) findViewById(R.id.longi);
         mDisplay= (EditText) findViewById(R.id.display);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         registerReceiver(uiUpdated, new IntentFilter("LOCATION_UPDATED"));
         setUpMapIfNeeded();
         //RegisterListeners();
@@ -136,6 +157,28 @@ public static final String EXTRA_MESSAGE = "message";
         ////////////////////////GCM END///////////////////////
 
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.start_service, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            logoutdialog();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setUpMapIfNeeded() {
@@ -563,4 +606,104 @@ public static final String EXTRA_MESSAGE = "message";
         shareRegidTask.execute(null, null, null);
     }
     ////////////////////////////////////////////////////////////////////////////
+
+    public void logoutdialog(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+
+        // set title
+        alertDialogBuilder.setTitle("Are you Sure?");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Click yes to Logout!")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        makeJsonObjReq();
+                        dialog.cancel();
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
 }
+    private void makeJsonObjReq() {
+
+        sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        final String k=sharedPreferences.getString("key", "");
+        final String u=sharedPreferences.getString("username", "");
+        final String apikey="apikey "+u+":"+k;
+        Log.d("shkey",apikey);
+
+//        Map<String, String> postParam= new HashMap<String, String>();
+//        postParam.put("username", username);
+//        postParam.put("password", password);
+//
+//        JSONObject jsonObject = new JSONObject(postParam);
+//        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                url,null,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d("response", response.toString());
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+//                hideProgressDialog();
+                Log.d("error", error.toString());
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Apikey",apikey);
+
+                return headers;
+            }
+//            @Override
+//            public Map<String, String> getParams() {
+//                HashMap<String, String> params = new HashMap<String, String>();
+//                params.put("key",k);
+//
+//                return params;
+//            }
+
+
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+
+}
+

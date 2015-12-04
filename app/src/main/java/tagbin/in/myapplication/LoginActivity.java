@@ -40,6 +40,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -54,6 +55,7 @@ import java.util.Map;
 import tagbin.in.myapplication.Volley.AppController;
 import tagbin.in.myapplication.Volley.CustomRequest;
 
+import static android.Manifest.permission.INTERNET;
 import static android.Manifest.permission.LOCATION_HARDWARE;
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -68,6 +70,8 @@ public class LoginActivity extends AppCompatActivity {
     String auth_key,mAuth_key;
     SharedPreferences sharedPreferences;
     public static String LOGINDETAILS= "loginDetails";
+    String url ="http://192.168.0.9:8000/api/v1/CreateUserResource/login/";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,88 +82,99 @@ public class LoginActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(LOGINDETAILS, Context.MODE_PRIVATE);
 
 
+
     }
 
     public void login(View view) {
         mNumber = number.getText().toString();
         mPassword = password.getText().toString();
-        mAuth_key=makeRequest(mNumber, mPassword);
-        if (mAuth_key.equals("")) {
+     //   mAuth_key=
+      makeJsonObjReq(mNumber, mPassword);
 
-            number.setError("UserName Not Registered");
+       if(sharedPreferences.getString("key","").equals("")){
+           number.setError("LoginFailed");
+       }else {
+           Log.d("key",sharedPreferences.getString("key",""));
+           Intent i = new Intent(LoginActivity.this,StartService.class);
+           startActivity(i);
 
-        } else {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("auth_key",mAuth_key);
-            editor.putString("username",mNumber);
-            editor.putString("password",mPassword);
-            editor.commit();
-            Intent i = new Intent(this, StartService.class);
-            startActivity(i);
-        }
+       }
+
     }
     public void register(View view){
         Intent i = new Intent(this, Registration.class);
         startActivity(i);
     }
 
-    public String makeRequest(final String number,final String password) {
+    private void makeJsonObjReq(final String username,final String password) {
 
 
-        RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, "pas url",null,
+
+        Map<String, String> postParam= new HashMap<String, String>();
+        postParam.put("username", username);
+        postParam.put("password", password);
+
+        JSONObject jsonObject = new JSONObject(postParam);
+        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                url, new JSONObject(postParam),
                 new Response.Listener<JSONObject>() {
+
                     @Override
                     public void onResponse(JSONObject response) {
+                        Log.d("response", response.toString());
                         try {
+                            String key= response.getString("key");
+                            String success= response.getString("success");
+                            String username= response.getString("username");
+                            if (key.equals("")){
+                                Log.d("key",key);
 
-
-                             auth_key = response.getString("auth_key");
-
+                            }else {
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("key", key);
+                                editor.putString("username", username);
+                                editor.commit();
+                               Log.d("vals", sharedPreferences.getAll().toString());
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
 
-                        Log.v("writtem:%n %s", response.toString());
-
                     }
+                }, new Response.ErrorListener() {
 
-                },
-
-                new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.v("error:%n %s", error.toString());
-
-
-                    }
-                }) {
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("number", number);
-                params.put("password", password);
-
-                return params;
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+//                hideProgressDialog();
+                Log.d("error", error.toString());
             }
+        }) {
 
+            @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("header1", "header1");
-                headers.put("header2", "header2");
-
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
                 return headers;
             }
 
 
-        };
-        jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        requestQueue.add(jsObjRequest);
-//        requestQueue.cancelAll(tag);
 
-        return auth_key;
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
+
 
 
 }

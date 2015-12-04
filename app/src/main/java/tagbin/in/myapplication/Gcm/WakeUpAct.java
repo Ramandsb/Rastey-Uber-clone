@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import tagbin.in.myapplication.R;
-import tagbin.in.myapplication.Slider.ImageTouchSlider;
 
 public class WakeUpAct extends Activity {
     PowerManager pm;

@@ -32,24 +32,18 @@ public class CustomRequest extends Request<JSONObject> {
     private Map<String, String> params;
     JSONObject jsonObject;
 
-//    public CustomRequest(String url, Map<String, String> params,
-//                         Response.Listener<JSONObject> reponseListener, Response.ErrorListener errorListener) {
-//        super(Method.GET, url, errorListener);
-//        this.listener = reponseListener;
-//        this.params = params;
-//    }
-//
-//    public CustomRequest(int method, String url, Map<String, String> params,
-//                         Response.Listener<JSONObject> reponseListener, Response.ErrorListener errorListener) {
-//        super(method, url, errorListener);
-//        this.listener = reponseListener;
-//        this.params = params;
-//    }
-    public CustomRequest(int method, String url, JSONObject jsonObject,
+    public CustomRequest(String url, Map<String, String> params,
+                         Response.Listener<JSONObject> reponseListener, Response.ErrorListener errorListener) {
+        super(Method.GET, url, errorListener);
+        this.listener = reponseListener;
+        this.params = params;
+    }
+
+    public CustomRequest(int method, String url, Map<String, String> params,
                          Response.Listener<JSONObject> reponseListener, Response.ErrorListener errorListener) {
         super(method, url, errorListener);
         this.listener = reponseListener;
-        this.jsonObject = jsonObject;
+        this.params = params;
     }
 
     protected Map<String, String> getParams()
