@@ -92,7 +92,7 @@ public class NotifyService extends Service {
         intentFilter.addAction(ACTION);
 //        registerReceiver(notifyServiceReceiver, intentFilter);
 
-        Toast.makeText(NotifyService.this, "service toast", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(NotifyService.this, "service toast", Toast.LENGTH_SHORT).show();
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
@@ -240,12 +240,12 @@ public class NotifyService extends Service {
         }
 
         public void onProviderDisabled(String provider) {
-            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
         }
 
 
         public void onProviderEnabled(String provider) {
-            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
         }
 
 

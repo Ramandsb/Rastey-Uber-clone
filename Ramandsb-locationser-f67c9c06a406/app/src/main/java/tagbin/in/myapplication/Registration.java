@@ -209,10 +209,11 @@ public class Registration extends AppCompatActivity {
                         Log.d("response", response.toString());
                         try {
 
-                            dismissDialog();
+
                             if (response.getString("success").equals("true")){
+                                dismissDialog();
                                 finish();
-                            }else Toast.makeText(Registration.this,"Sign up Error",Toast.LENGTH_LONG).show();
+                            }else  messageView.setText("Connection failed");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -480,8 +481,8 @@ public class Registration extends AppCompatActivity {
             protected void onPostExecute(String result) {
                 shareRegidTask = null;
                 Log.d("onPostExecute",result);
-                Toast.makeText(getApplicationContext(), result,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), result,
+//                        Toast.LENGTH_LONG).show();
             }
 
         };

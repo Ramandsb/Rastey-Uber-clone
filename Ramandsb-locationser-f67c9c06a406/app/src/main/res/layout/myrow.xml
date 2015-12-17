@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#453454"
+    android:padding="30dp"
+    android:elevation="30dp">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="cab_no"
+        android:id="@+id/cab_no"
+        android:textColor="#ffffff"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/to_location" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="time"
+        android:id="@+id/time"
+        android:textColor="#ffffff"
+        android:layout_above="@+id/to_location"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="57dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="to_location"
+        android:id="@+id/to_location"
+        android:layout_marginTop="52dp"
+        android:textColor="#ffffff"
+        android:layout_below="@+id/cab_no"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="52dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pick"
+        android:id="@+id/pick"
+        android:textColor="#ffffff"
+        android:layout_alignTop="@+id/to_location"
+        android:layout_alignStart="@+id/time" />
+</RelativeLayout>

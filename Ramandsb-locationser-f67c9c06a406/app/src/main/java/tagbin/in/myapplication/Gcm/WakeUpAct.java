@@ -63,7 +63,8 @@ public class WakeUpAct extends Activity {
     ProgressBar progressBar;
     AlertDialog alert;
     TextView messageView;
-    StartService startService;
+    StartService startService;String user_id;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,11 +91,10 @@ public class WakeUpAct extends Activity {
                 cab_no.setText(cab);
                 String froms= (String)  jsonObject.get("from");
                 from.setText(froms);
-                String tos= (String)   jsonObject.get("to");
-                to.setText(tos);
                 String times= (String)   jsonObject.get("time");
                 time.setText(times);
-                Log.d("seperatedJson",""+cab+"//"+froms+"//"+tos+"//"+times);
+                 user_id= (String)   jsonObject.get("user_id");
+                Log.d("seperatedJson",""+cab+"//"+froms+"//"+user_id+"//"+times);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -205,6 +205,7 @@ public class WakeUpAct extends Activity {
         Map<String, String> postParam= new HashMap<String, String>();
         postParam.put("username",username);
         postParam.put("success", response);
+        postParam.put("user_id",user_id);
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
