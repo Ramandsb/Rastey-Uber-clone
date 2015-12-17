@@ -2,14 +2,10 @@ package tagbin.in.myapplication.Gcm;
 
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
@@ -17,14 +13,11 @@ import android.os.PowerManager;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -37,7 +30,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.github.glomadrian.loadingballs.factory.path.Star;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +39,6 @@ import java.util.Map;
 
 import tagbin.in.myapplication.LoginActivity;
 import tagbin.in.myapplication.R;
-import tagbin.in.myapplication.Registration;
 import tagbin.in.myapplication.StartService;
 import tagbin.in.myapplication.Volley.AppController;
 
@@ -81,8 +72,8 @@ public class WakeUpAct extends Activity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String value = extras.getString("message");
-            cab_no = (TextView) findViewById(R.id.cab_no);
-            time = (TextView) findViewById(R.id.time);
+            cab_no = (TextView) findViewById(R.id.mcab_no);
+            time = (TextView) findViewById(R.id.mtime);
             from = (TextView) findViewById(R.id.from);
             to = (TextView) findViewById(R.id.to);
             try {

@@ -38,6 +38,7 @@ import android.text.method.CharacterPickerDialog;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -109,6 +110,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     ProgressBar progressBar;
    public Button journey;
    public static boolean visible = false;
+    ActionBarDrawerToggle toggle;
+    DrawerLayout drawer;
+
 
 
 
@@ -118,17 +122,17 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         setContentView(R.layout.activity_start_service);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         registerReceiver(uiUpdated, new IntentFilter("LOCATION_UPDATED"));
         setUpMapIfNeeded();
         Intent intent = new Intent(StartService.this, NotifyService.class);
         StartService.this.startService(intent);
         customDialog();
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+         toggle = new ActionBarDrawerToggle(
                 this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         journey= (Button) findViewById(R.id.Journey);
@@ -172,7 +176,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.start_service, menu);
+        getMenuInflater().inflate(R.menu.navigationdrawer, menu);
         return true;
     }
 
@@ -192,6 +196,13 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             logoutdialog();
             return true;
         }
+        if (id == android.R.id.home) {
+
+            Log.d("hi", "kkk");
+             drawer.openDrawer(GravityCompat.START);
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

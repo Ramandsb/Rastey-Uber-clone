@@ -44,18 +44,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/cab_no"
+        android:id="@+id/mcab_no"
         android:textColor="#ffffff"
         android:layout_marginTop="84dp"
         android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/time" />
+        android:layout_alignStart="@+id/mtime" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/time"
+        android:id="@+id/mtime"
         android:textColor="#ffffff"
         android:layout_above="@+id/to"
         android:layout_alignStart="@+id/to" />
@@ -107,8 +107,8 @@
         android:text="Cab Number :"
         android:id="@+id/textView6"
         android:textColor="#eeeeee"
-        android:layout_alignTop="@+id/cab_no"
-        android:layout_toStartOf="@+id/time" />
+        android:layout_alignTop="@+id/mcab_no"
+        android:layout_toStartOf="@+id/mtime" />
 
     <TextView
         android:layout_width="wrap_content"

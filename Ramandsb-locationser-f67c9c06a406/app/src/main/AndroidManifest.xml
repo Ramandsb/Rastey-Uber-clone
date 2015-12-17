@@ -101,7 +101,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_splash"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".Gcm.WakeUpAct"
             android:label="@string/title_activity_wake_up"
@@ -137,10 +137,14 @@
         <activity
             android:name=".NavigationDrawer.Navigationdrawer"
             android:label="@string/title_activity_navigationdrawer"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".UpcomingRides.SeeUpcomingRides"
             android:label="@string/title_activity_see_upcoming_rides"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".StartTrip"
+            android:label="@string/title_activity_start_trip"
             android:theme="@style/AppTheme"></activity>
     </application>
 

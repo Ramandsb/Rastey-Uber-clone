@@ -48,7 +48,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         cv.put(TableData.Tableinfo.TO_LOCATION, to);
         cv.put(TableData.Tableinfo.PICKUP_LOCATION, pick);
         long k = SQ.insert(TableData.Tableinfo.TABLE_NAME, null, cv);
-        Log.d("Database operations", cv.toString());
+        Log.d("Database Created","true");
 
     }
     public Cursor getInformation(DatabaseOperations dop) {
@@ -77,13 +77,25 @@ public class DatabaseOperations extends SQLiteOpenHelper {
                 item.setTo_loc(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.TO_LOCATION)));
                 item.setPick(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.PICKUP_LOCATION)));
                 listData.add(item);
-                Log.d("listdata",listData.toString());
+                Log.d("Database read", "true");
             }
             while (cursor.moveToNext());
         }
         return listData;
     }
 
+    public  void eraseData(DatabaseOperations dop){
+        SQLiteDatabase db = dop.getWritableDatabase(); // helper is object extends SQLiteOpenHelper
+        db.delete(TableData.Tableinfo.TABLE_NAME, null, null);
+        Log.d("Database Erased","true");
+    }
+
+    public void removeAll()
+    {
+        // db.delete(String tableName, String whereClause, String[] whereArgs);
+        // If whereClause is null, it will delete all rows.
+
+    }
 
 
 }
