@@ -13,7 +13,8 @@ public class TableData {
     public static abstract class Tableinfo implements BaseColumns {
         public static final String CAB_NO = "cab_no";
         public static final String TIME = "time";
-        public static final String TO_LOCATION = "to_locaiton";
+        public static final String USER_ID = "user_id";
+        public static final String TIMETOSTART = "timetostart";
         public static final String PICKUP_LOCATION = "pick_location";
         public static final String DATABASE_NAME = "dbrides";
         public static final String TABLE_NAME = "ridestable";

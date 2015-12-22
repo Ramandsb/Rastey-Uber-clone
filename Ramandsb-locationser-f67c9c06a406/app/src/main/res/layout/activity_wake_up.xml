@@ -40,13 +40,21 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="71dp" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_below="@+id/textView8"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="117dp">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
         android:id="@+id/mcab_no"
         android:textColor="#ffffff"
-        android:layout_marginTop="84dp"
+        android:layout_marginBottom="84dp"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/mtime" />
 
@@ -79,6 +87,7 @@
         android:id="@+id/from"
         android:layout_centerVertical="true"
         android:layout_toStartOf="@+id/Accept" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -104,38 +113,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cab Number :"
-        android:id="@+id/textView6"
-        android:textColor="#eeeeee"
-        android:layout_alignTop="@+id/mcab_no"
-        android:layout_toStartOf="@+id/mtime" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="From :"
-        android:id="@+id/textView7"
-        android:textColor="#eeeeee"
-        android:layout_alignBaseline="@+id/from"
-        android:layout_alignBottom="@+id/from"
-        android:layout_alignStart="@+id/textView8" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text=""
         android:id="@+id/textView8"
         android:textColor="#eeeeee"
-        android:layout_above="@+id/from"
-        android:layout_alignStart="@+id/textView9" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Time"
-        android:id="@+id/textView9"
-        android:textColor="#eeeeee"
-        android:layout_above="@+id/to"
-        android:layout_alignEnd="@+id/Reject" />
+         />
 
 </RelativeLayout>

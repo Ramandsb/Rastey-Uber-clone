@@ -56,7 +56,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
         holder.cab_no.setText(currentItem.getCab_no());
         holder.time.setText(currentItem.getTime());
         holder.to_loc.setText(currentItem.getTo_loc());
-        holder.pick.setText(currentItem.getPick());
+        holder.pick.setText(currentItem.getTimetostart());
     }
 
 

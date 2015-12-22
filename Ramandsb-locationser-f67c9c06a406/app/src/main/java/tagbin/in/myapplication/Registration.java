@@ -18,8 +18,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,12 +44,15 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import tagbin.in.myapplication.Gcm.Config;
@@ -58,6 +64,7 @@ public class Registration extends AppCompatActivity {
     EditText name, mobno, cabno, password, conpass;
     String mName, mMobno, mCabno, mPass, mConpass;
     String url = Config.BASE_URL+"create_user/";
+    String urlSpinner = Config.BASE_URL+"get_cab/";
     ////////////////////GCM WORKING/////////////////////////////////
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -65,6 +72,8 @@ public class Registration extends AppCompatActivity {
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+     List categories;
+    List idList;
 
 
     String SENDER_ID = "604246263412";//Project number
@@ -77,11 +86,14 @@ public class Registration extends AppCompatActivity {
     //    AtomicInteger msgId = new AtomicInteger();
 //    SharedPreferences prefs;
     Context context;
+    Spinner carSpinner;
 //    EditText mDisplay;
 //    Button send;
 
     String regid ="";
     static final String TAG = "GCM";
+    String selectedCar_type;
+    String selected_id;
     /////////
     ShareExternalServer appUtil;
     //    String regId;
@@ -103,8 +115,27 @@ public class Registration extends AppCompatActivity {
         cabno = (EditText) findViewById(R.id.cabno);
         password = (EditText) findViewById(R.id.password);
         conpass = (EditText) findViewById(R.id.conPass);
+        carSpinner = (Spinner) findViewById(R.id.carspinner);
         gcmInitialise();
         customDialog();
+
+
+        makeJsonObjReq();
+
+        carSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(Registration.this,"value: "+position+"   //"+categories.get(position),Toast.LENGTH_LONG).show();
+                Log.d("setvalues", position + " ///" + categories.get(position) + "/////" + idList.get(position));
+                selected_id= (String) idList.get(position);
+                selectedCar_type= (String) categories.get(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         dialog= new Dialog(this);
         tvDialog= (TextView) findViewById(R.id.tvdialog);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -184,6 +215,89 @@ public class Registration extends AppCompatActivity {
 
     }
 
+    private void makeJsonObjReq() {
+
+
+
+//        Map<String, String> postParam= new HashMap<String, String>();
+//        postParam.put("username", cab_no);
+//        postParam.put("name", name);
+//        postParam.put("num",phno );
+//        postParam.put("password", password);
+//        postParam.put("gcm_regid", gcmRegistration);
+//        JSONObject jsonObject = new JSONObject(postParam);
+//        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlSpinner,null,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response){
+                        categories = new ArrayList();
+                        idList= new ArrayList();
+
+                        Log.d("response", response.toString());
+                        try {
+//                       String   messageStr=  response.getString("message");
+//                            JSONObject message = new JSONObject(messageStr);
+                           JSONArray detail= response.getJSONArray("detail");
+                            for(int i =0;i<detail.length();i++){
+                                JSONObject jsonObject = detail.getJSONObject(i);
+
+                             String id= jsonObject.getString("id");
+                                String car_type= jsonObject.getString("car_type");
+                                Log.d("values", id + " ///" + car_type);
+                                categories.add(car_type);
+                                idList.add(id);
+
+
+                            }
+                            ArrayAdapter dataAdapter = new ArrayAdapter(Registration.this, android.R.layout.simple_spinner_item, categories);
+                            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            carSpinner.setAdapter(dataAdapter);
+                            carSpinner.setPrompt("Select CarType");
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.d("error",e.toString());
+                        }
+                        ////////////////////////////////
+//                        "message": "{detail:[{\"id\":\"1\",\"car_type\":\"Economy â Dzire\"},{\"id\":\"2\",\"car_type\":\"Executive1 â Honda City \/ Etios\"}]}",
+//                                "success": true
+//                    }
+//                       //////////////////////////////////
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+                displayErrors(error);
+                Log.d("error",error.toString());
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
+                return headers;
+            }
+
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
     private void makeJsonObjReq(String name,String phno,String cab_no,String password,String gcmRegistration) {
 
 
@@ -192,6 +306,8 @@ public class Registration extends AppCompatActivity {
         postParam.put("username", cab_no);
         postParam.put("name", name);
         postParam.put("num",phno );
+        postParam.put("car_type_id",selected_id);
+        postParam.put("car_type_name",selectedCar_type);
         postParam.put("password", password);
         postParam.put("gcm_regid", gcmRegistration);
         JSONObject jsonObject = new JSONObject(postParam);

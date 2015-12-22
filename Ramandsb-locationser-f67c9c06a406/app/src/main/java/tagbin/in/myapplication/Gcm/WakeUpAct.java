@@ -1,8 +1,12 @@
 package tagbin.in.myapplication.Gcm;
 
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,9 +42,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.LoginActivity;
+import tagbin.in.myapplication.NotificationPublisher;
 import tagbin.in.myapplication.R;
 import tagbin.in.myapplication.StartService;
+import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
 
 public class WakeUpAct extends Activity {
@@ -47,72 +55,100 @@ public class WakeUpAct extends Activity {
     PowerManager.WakeLock wl;
     KeyguardManager km;
     KeyguardManager.KeyguardLock kl;
-    TextView cab_no,time,from,to;
-    String url =Config.BASE_URL+"driver_job/";
+    TextView cabtv, timetv, fromtv, totv;
+    String url = Config.BASE_URL + "driver_job/";
     String username;
     TextView tvDialog;
     ProgressBar progressBar;
     AlertDialog alert;
     TextView messageView;
-    StartService startService;String user_id;
+    StartService startService;
+    DatabaseOperations dop;
+    String gothr, gotmin, gotsec;
+
+
+    long nethr, netmin, nets;
+    long inmilli;
+    int current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int;
+
+    String cab_no, user_id,from , pickup_time , pickup_address, pickup_houre , pickup_minuts,pickup_sec,current_houre ,current_minuts ,current_sec ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE); getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_wake_up);
         Log.i("INFO", "onCreate() in DismissLock");
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        km=(KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-        kl=km.newKeyguardLock("INFO");
+        km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        kl = km.newKeyguardLock("INFO");
         customDialog();
-        tvDialog= (TextView) findViewById(R.id.tvdialog);
+        dop = new DatabaseOperations(this);
+        tvDialog = (TextView) findViewById(R.id.tvdialog);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String value = extras.getString("message");
-            cab_no = (TextView) findViewById(R.id.mcab_no);
-            time = (TextView) findViewById(R.id.mtime);
-            from = (TextView) findViewById(R.id.from);
-            to = (TextView) findViewById(R.id.to);
+            cabtv = (TextView) findViewById(R.id.mcab_no);
+            timetv = (TextView) findViewById(R.id.mtime);
+            fromtv = (TextView) findViewById(R.id.from);
+            totv = (TextView) findViewById(R.id.to);
             try {
+                //////////////////////
+
                 JSONObject jsonObject = new JSONObject(value);
-              String cab= (String) jsonObject.get("cab_no");
-                cab_no.setText(cab);
-                String froms= (String)  jsonObject.get("from");
-                from.setText(froms);
-                String times= (String)   jsonObject.get("time");
-                time.setText(times);
-                 user_id= (String)   jsonObject.get("user_id");
-                Log.d("seperatedJson",""+cab+"//"+froms+"//"+user_id+"//"+times);
+                 cab_no = (String) jsonObject.get("cab_no");
+                 user_id = (String) jsonObject.get("user_id");
+//                 from = (String) jsonObject.get("from");
+                 pickup_time = (String) jsonObject.get("pickup_time");
+                 pickup_address = (String) jsonObject.get("pickup_address");
+                pickup_houre = (String) jsonObject.get("pickup_houre");
+                 pickup_houre_Int = Integer.parseInt(pickup_houre);
+                 pickup_minuts = (String) jsonObject.get("pickup_minuts");
+                 pickup_minuts_Int = Integer.parseInt(pickup_minuts);
+                 pickup_sec = (String) jsonObject.get("pickup_sec");
+                 pickup_sec_Int = Integer.parseInt(pickup_sec);
+                 current_houre = (String) jsonObject.get("current_houre");
+                 current_houre_Int = Integer.parseInt(current_houre);
+                 current_minuts = (String) jsonObject.get("current_minuts");
+                 current_minuts_int = Integer.parseInt(current_minuts);
+                 current_sec = (String) jsonObject.get("current_sec");
+                 current_sec_int = Integer.parseInt(current_sec);
+                cabtv.setText(cab_no);
+                timetv.setText(pickup_houre+":"+pickup_minuts);
+                fromtv.setText(pickup_address);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d("vsl",value);
+            Log.d("Split values",cab_no+"//"+user_id+"//"+pickup_time+"//"+pickup_houre+"//"+pickup_minuts+"//"+pickup_sec+"//"+current_houre+"//"+current_minuts+"//"+current_sec);
+
+            Log.d("vsl", value);
         }
-        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP|PowerManager.ON_AFTER_RELEASE, "INFO");
+        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "INFO");
         wl.acquire(); //wake up the screen
         kl.disableKeyguard();// dismiss the keyguard
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.ring);
         mp.start();
 
-         startService= new StartService();
+        startService = new StartService();
         FloatingActionButton accept = (FloatingActionButton) findViewById(R.id.Accept);
         FloatingActionButton reject = (FloatingActionButton) findViewById(R.id.Reject);
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        username=sharedPreferences.getString("username","");
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        username = sharedPreferences.getString("username", "");
 
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mp.stop();
-
                 showDialog();
                 makeJsonObjReq("true");
-                StartService.visible =true;
-
-
+                long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
+                String timinmilli=Long.toString(timeinmili);
+                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli);
+                dop.arrangeInc(dop);
 
             }
         });
@@ -122,33 +158,42 @@ public class WakeUpAct extends Activity {
                 mp.stop();
                 showDialog();
                 makeJsonObjReq("false");
-                StartService.visible=false;
+                StartService.visible = false;
             }
         });
 
     }
 
-    public void customDialog()
-    {
+    public void splitString(String string) {
+        String[] parts = string.split(":");
+        gothr = parts[0]; // 004
+        gotmin = parts[1];
+        gotsec = parts[2];
+        Log.d("got strings", gothr + "//" + gotmin + "///" + gotsec);
+    }
+
+    public void customDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
 
         View customView = inflater.inflate(R.layout.dialog, null);
         builder.setView(customView);
-        messageView = (TextView)customView.findViewById(R.id.tvdialog);
-        progressBar= (ProgressBar) customView.findViewById(R.id.progress);
+        messageView = (TextView) customView.findViewById(R.id.tvdialog);
+        progressBar = (ProgressBar) customView.findViewById(R.id.progress);
         alert = builder.create();
 
     }
-    public void showDialog(){
+
+    public void showDialog() {
 
         alert.show();
     }
-    public void dismissDialog(){
+
+    public void dismissDialog() {
         alert.dismiss();
     }
 
-    public void displayErrors(VolleyError error){
+    public void displayErrors(VolleyError error) {
         if (error instanceof TimeoutError || error instanceof NoConnectionError) {
             progressBar.setVisibility(View.GONE);
             messageView.setText("Connection failed");
@@ -165,12 +210,14 @@ public class WakeUpAct extends Activity {
             messageView.setText("ParseError");
         }
     }
-    public void redirectTomap(){
+
+    public void redirectTomap() {
         Intent i = new Intent(WakeUpAct.this, StartService.class);
         startActivity(i);
         WakeUpAct.this.finish();
     }
-    public void redirectTologin(){
+
+    public void redirectTologin() {
         Intent i = new Intent(WakeUpAct.this, LoginActivity.class);
         startActivity(i);
         WakeUpAct.this.finish();
@@ -189,17 +236,16 @@ public class WakeUpAct extends Activity {
         super.onResume();
         wl.acquire();//must call this!
     }
+
     private void makeJsonObjReq(String response) {
 
 
-
-        Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("username",username);
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("username", username);
         postParam.put("success", response);
-        postParam.put("user_id",user_id);
+        postParam.put("user_id", user_id);
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
-
 
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
@@ -207,24 +253,29 @@ public class WakeUpAct extends Activity {
                 new Response.Listener<JSONObject>() {
 
                     @Override
-                    public void onResponse(JSONObject response){
+                    public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
                         try {
 
-                            if (response.getString("success").equals("true")){
+
+                            if (response.getString("success").equals("true")) {
 
                                 dismissDialog();
-                                if (username.equals("")){
+                                if (username.equals("")) {
                                     redirectTologin();
-                                }else {
+
+
+                                } else {
                                     redirectTomap();
+
                                 }
-                            }else {
+
+                            } else {
                                 dismissDialog();
-                                if (username.equals("")){
+                                if (username.equals("")) {
                                     redirectTologin();
-                                }else {
+                                } else {
                                     redirectTomap();
                                 }
 
@@ -241,7 +292,7 @@ public class WakeUpAct extends Activity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
                 displayErrors(error);
-                Log.d("error",error.toString());
+                Log.d("error", error.toString());
             }
         }) {
 
@@ -249,10 +300,9 @@ public class WakeUpAct extends Activity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
+                headers.put("charset", "utf-8");
                 return headers;
             }
-
 
 
         };
@@ -262,6 +312,51 @@ public class WakeUpAct extends Activity {
 
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+
+    private void scheduleNotification(Notification notification, long triggertime) {
+
+
+        Log.d("Notification","set");
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        long futureInMillis = SystemClock.elapsedRealtime() + triggertime;
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME, futureInMillis, pendingIntent);
+        Log.d("alarm set", "");
+    }
+
+    private Notification getNotification(String content) {
+        Intent resultIntent = new Intent(this, SeeUpcomingRides.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(SeeUpcomingRides.class);
+// Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+//        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+        Log.d("getNotification","get");
+        PendingIntent resultPendingIntent = stackBuilder
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT
+                        | PendingIntent.FLAG_ONE_SHOT);
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Your is Job Starting Soon");
+        builder.setContentText(content);
+        builder.setContentIntent(resultPendingIntent);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        return builder.build();
+    }
+
+    public long calculatemilisecs(int chr, int cmin, int cs, int phr, int pmin, int ps) {
+        nethr = phr - chr;
+        netmin = pmin - cmin;
+        nets = ps - cs;
+        long totaltimesec = nethr * 3600 + netmin * 60 + nets;
+        long x = Math.abs(-totaltimesec);
+        inmilli = x * 1000;
+        scheduleNotification(getNotification("Job Starting Soon"), inmilli);
+        Log.d("calImmilisec", inmilli + " ");
+        return inmilli;
     }
 
 }

@@ -86,6 +86,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Gcm.ShareExternalServer;
 import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
@@ -103,8 +104,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     String usrname;
     LatLng start;
     String url = Config.BASE_URL+"logout/";
-   String jernydoneUrl= Config.BASE_URL+"driver_job_done/";
+   String jernydoneUrl= Config.BASE_URL+"driver_journey_end/";
     SharedPreferences sharedPreferences;
+    SharedPreferences sha;
     AlertDialog alert;
     TextView messageView;
     ProgressBar progressBar;
@@ -112,6 +114,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
    public static boolean visible = false;
     ActionBarDrawerToggle toggle;
     DrawerLayout drawer;
+    TextView navdraname;
 
 
 
@@ -135,6 +138,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+//        navdraname= (TextView) findViewById(R.id.navdraname);
         journey= (Button) findViewById(R.id.Journey);
         journey.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,6 +149,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 makeJsonObjReq(usrname);
                 Log.d("username",usrname);
                journey.setVisibility(View.INVISIBLE);
+
             }
         });
         if (visible){
@@ -220,9 +225,10 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 mMap.setOnMapClickListener(this);
                 mMap.setBuildingsEnabled(true);
                 mMap.setTrafficEnabled(true);
-                mMap.getUiSettings().setTiltGesturesEnabled(false);
+//                mMap.getUiSettings().setTiltGesturesEnabled(false);
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.getUiSettings().setAllGesturesEnabled(true);
 
                // mMap.setMyLocationEnabled(true);
                 //mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -432,6 +438,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         Log.d("shkey",apikey);
 
         Map<String, String> postParam= new HashMap<String, String>();
+        postParam.put("cab_no",u);
         postParam.put("logout", "yes");
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
@@ -492,10 +499,15 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
     private void makeJsonObjReq(String s) {
 
+        sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
 
+     final String user_id=   sha.getString("user_id", "");
+     String   cab_no= sha.getString("cab_no", "");
         Map<String, String> postParam = new HashMap<String, String>();
-        postParam.put("username",s);
-        postParam.put("journey", "end");
+        postParam.put("user_id",user_id);
+        postParam.put("username", cab_no);
+        postParam.put("trip", "End");
+
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
@@ -509,6 +521,10 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         Log.d("response", response.toString());
                         progressBar.setVisibility(View.GONE);
                         messageView.setText("Job Finished");
+                        visible=false;
+                        DatabaseOperations dop= new DatabaseOperations(StartService.this);
+                        dop.deleteRow(dop,user_id);
+
 
                     }
                 }, new Response.ErrorListener() {
@@ -591,15 +607,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
            Intent i = new Intent(this, SeeUpcomingRides.class);
             startActivity(i);
         } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            logoutdialog();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

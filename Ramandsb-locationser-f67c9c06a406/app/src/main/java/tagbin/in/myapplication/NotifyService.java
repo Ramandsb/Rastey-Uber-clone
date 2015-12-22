@@ -97,8 +97,8 @@ public class NotifyService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, listener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 1, listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, listener);
 
 
 //        return super.onStartCommand(intent, flags, startId);
