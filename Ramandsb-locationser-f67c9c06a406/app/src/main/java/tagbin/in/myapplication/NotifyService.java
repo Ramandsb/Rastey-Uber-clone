@@ -254,118 +254,18 @@ public class NotifyService extends Service {
         }
 
 
-//        private void makeRequest(final String lati,final String longi) {
-//            Log.v("latlong values:%n %s", lati + "  " + longi + " ");
-//
-//
-//final String data="{\n" +
-//        "  \"lat\": \"lati\",\n" +
-//        "  \"long\": \"longi\"\n" +
-//        "}";
-//
-//            RequestQueue requestQueue = Volley.newRequestQueue(NotifyService.this);
-//            CustomRequest jsObjRequest = new CustomRequest(Request.Method.POST, url, null,
-//                    new Response.Listener<JSONObject>() {
-//                        @Override
-//                        public void onResponse(JSONObject response) {
-//
-//
-//
-//                            Log.v("writtem:%n %s", response.toString());
-//
-//
-//                            Toast.makeText(NotifyService.this, response.toString(), Toast.LENGTH_LONG);
-//
-//
-//                        }
-//
-//                    },
-//
-//                    new Response.ErrorListener() {
-//
-//                        @Override
-//                        public void onErrorResponse(VolleyError error) {
-//                            Log.v("error:%n %s", error.toString());
-//                            Toast.makeText(NotifyService.this, error.toString(), Toast.LENGTH_LONG);
-//
-//
-//                        }
-//                    }) {
-//                protected Map<String, String> getParams() throws AuthFailureError {
-//                    Map<String, String> params = new HashMap<String, String>();
-//                    params.put("data", data);
-//
-//                    Log.d("headers", params.toString());
-//                    return params;
-//                }
-//                public Map<String, String> getHeaders() throws AuthFailureError {
-//                HashMap<String, String> headers = new HashMap<>();
-//                headers.put("header1", data);
-//
-//                    Log.d("headers",headers.toString());
-//                return headers;
-//
-//            }
-//
-//
-//            };
-//            jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsObjRequest);
-////        requestQueue.cancelAll(tag);
-//
-//        }
-//
-//    }
     }
 
-//    public void request(final String lati,final String longi) {
-//
-//        final String data = "{\n" +"  \"cab_no\": "+"CAB-90 21 cv"+",\n" +
-//                "  \"lat\": "+lati+",\n" +
-//                "  \"long\": "+longi+"\n" +
-//                "}";
-//        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                Log.d("response", response.toString());
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                //VolleyLog.d("error", "Error: " + error.getMessage());
-//                Log.e("error", "" + error.getMessage() + "," + error.toString());
-//            }
-//        }) {
-//            @Override
-//            protected Map<String, String> getParams() {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("data", data);
-//                return params;
-//            }
-//
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("Content-Type", "application/x-www-form-urlencoded");
-//                return params;
-//            }
-//
-//        };
-//
-//        sr.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-////
-//        AppController.getInstance().addToRequestQueue(sr);
-//    }
-    //////////////
+
+
     private void makeJsonObjReq(final String lati,final String longi) {
-
-
-
       String cab_no=  sharedPreferences.getString("username","");
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam= new HashMap<String, String>();
         postParam.put("cab_no", cab_no);
         postParam.put("lat", lati);
         postParam.put("lng", longi);
+
 
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
@@ -381,8 +281,6 @@ public class NotifyService extends Service {
                         Log.d("response", response.toString());
 
 
-
-
                     }
                 }, new Response.ErrorListener() {
 
@@ -396,8 +294,10 @@ public class NotifyService extends Service {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
+//                final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
                 headers.put("Content-Type", "application/json");
                 headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
                 return headers;
             }
 

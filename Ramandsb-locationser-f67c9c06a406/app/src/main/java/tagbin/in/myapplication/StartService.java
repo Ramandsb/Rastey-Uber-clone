@@ -115,6 +115,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     ActionBarDrawerToggle toggle;
     DrawerLayout drawer;
     TextView navdraname;
+     String Auth_key;
 
 
 
@@ -433,12 +434,13 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         final String k=sharedPreferences.getString("key", "");
-        final String u=sharedPreferences.getString("username", "");
-        final String apikey=u+":"+k;
-        Log.d("shkey",apikey);
+        final String cab_no=sharedPreferences.getString("username", "");
+//        final String apikey=u+":"+k;
+//        Log.d("shkey",apikey);
+        Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
 
         Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("cab_no",u);
+        postParam.put("cab_no",cab_no);
         postParam.put("logout", "yes");
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
@@ -485,6 +487,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 //                return params;
 //            }
 
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
+                return headers;
+            }
 
 
 
@@ -498,11 +508,12 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     }
 
     private void makeJsonObjReq(String s) {
-
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-
      final String user_id=   sha.getString("user_id", "");
      String   cab_no= sha.getString("cab_no", "");
+        final String k=sharedPreferences.getString("key", "");
+        final String Auth_key="ApiKey "+s+":"+k;
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id",user_id);
         postParam.put("username", cab_no);
@@ -522,6 +533,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         progressBar.setVisibility(View.GONE);
                         messageView.setText("Job Finished");
                         visible=false;
+                        ShowDetailsDetailActivity.show=true;
                         DatabaseOperations dop= new DatabaseOperations(StartService.this);
                         dop.deleteRow(dop,user_id);
 
@@ -537,7 +549,22 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 Log.d("error", error.toString());
             }
         }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
+                return headers;
+            }
+
+
+
         };
+
+
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.PowerManager;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -65,17 +67,21 @@ public class WakeUpAct extends Activity {
     StartService startService;
     DatabaseOperations dop;
     String gothr, gotmin, gotsec;
+    Uri sound;
 
+    SharedPreferences ridestatusShared;
+    public  static final String RIDESTATUS="ride_status";
 
     long nethr, netmin, nets;
     long inmilli;
     int current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int;
 
+     MediaPlayer mp;
     String cab_no, user_id,from , pickup_time , pickup_address, pickup_houre , pickup_minuts,pickup_sec,current_houre ,current_minuts ,current_sec ;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -86,6 +92,7 @@ public class WakeUpAct extends Activity {
         km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         kl = km.newKeyguardLock("INFO");
         customDialog();
+        ridestatusShared =getSharedPreferences(RIDESTATUS,MODE_PRIVATE);
         dop = new DatabaseOperations(this);
         tvDialog = (TextView) findViewById(R.id.tvdialog);
         Bundle extras = getIntent().getExtras();
@@ -119,7 +126,9 @@ public class WakeUpAct extends Activity {
                 cabtv.setText(cab_no);
                 timetv.setText(pickup_houre+":"+pickup_minuts);
                 fromtv.setText(pickup_address);
-
+                long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
+                String timinmilli=Long.toString(timeinmili);
+                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli,"pending");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -130,13 +139,13 @@ public class WakeUpAct extends Activity {
         wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "INFO");
         wl.acquire(); //wake up the screen
         kl.disableKeyguard();// dismiss the keyguard
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.ring);
+        mp = MediaPlayer.create(this, R.raw.ring);
         mp.start();
 
         startService = new StartService();
         FloatingActionButton accept = (FloatingActionButton) findViewById(R.id.Accept);
         FloatingActionButton reject = (FloatingActionButton) findViewById(R.id.Reject);
-        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         username = sharedPreferences.getString("username", "");
 
         accept.setOnClickListener(new View.OnClickListener() {
@@ -145,11 +154,7 @@ public class WakeUpAct extends Activity {
                 mp.stop();
                 showDialog();
                 makeJsonObjReq("true");
-                long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
-                String timinmilli=Long.toString(timeinmili);
-                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli);
-                dop.arrangeInc(dop);
-
+                dop.putStatus(dop,"accept",user_id);
             }
         });
         reject.setOnClickListener(new View.OnClickListener() {
@@ -159,17 +164,11 @@ public class WakeUpAct extends Activity {
                 showDialog();
                 makeJsonObjReq("false");
                 StartService.visible = false;
+                dop.putStatus(dop,"reject",user_id);
+                dop.deleteRow(dop,user_id);
             }
         });
 
-    }
-
-    public void splitString(String string) {
-        String[] parts = string.split(":");
-        gothr = parts[0]; // 004
-        gotmin = parts[1];
-        gotsec = parts[2];
-        Log.d("got strings", gothr + "//" + gotmin + "///" + gotsec);
     }
 
     public void customDialog() {
@@ -227,7 +226,15 @@ public class WakeUpAct extends Activity {
     protected void onPause() {
         // TODO Auto-generated method stub
         super.onPause();
-        wl.release(); //when the activiy pauses, we should realse the wakelock
+        wl.release();
+        mp.stop();
+         //when the activiy pauses, we should realse the wakelock
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mp.stop();
     }
 
     @Override
@@ -238,8 +245,8 @@ public class WakeUpAct extends Activity {
     }
 
     private void makeJsonObjReq(String response) {
-
-
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("username", username);
         postParam.put("success", response);
@@ -300,9 +307,11 @@ public class WakeUpAct extends Activity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put("charset", "utf-8");
+                headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
                 return headers;
             }
+
 
 
         };
@@ -342,6 +351,7 @@ public class WakeUpAct extends Activity {
         Notification.Builder builder = new Notification.Builder(this);
         builder.setContentTitle("Your is Job Starting Soon");
         builder.setContentText(content);
+        builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
         builder.setContentIntent(resultPendingIntent);
         builder.setSmallIcon(R.mipmap.ic_launcher);
         return builder.build();
@@ -349,12 +359,12 @@ public class WakeUpAct extends Activity {
 
     public long calculatemilisecs(int chr, int cmin, int cs, int phr, int pmin, int ps) {
         nethr = phr - chr;
-        netmin = pmin - cmin;
+        netmin = (pmin-30) - cmin;
         nets = ps - cs;
         long totaltimesec = nethr * 3600 + netmin * 60 + nets;
         long x = Math.abs(-totaltimesec);
         inmilli = x * 1000;
-        scheduleNotification(getNotification("Job Starting Soon"), inmilli);
+        scheduleNotification(getNotification("Job Starting in 15mins"), inmilli);
         Log.d("calImmilisec", inmilli + " ");
         return inmilli;
     }

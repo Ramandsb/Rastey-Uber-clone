@@ -49,5 +49,4 @@
         android:src="@drawable/carfabicon"
         app:layout_anchor="@+id/showdetails_detail_container"
         app:layout_anchorGravity="top|end" />
-
 </android.support.design.widget.CoordinatorLayout>

@@ -53,9 +53,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
 //
 //            }
 //        });
-        holder.cab_no.setText(currentItem.getCab_no());
+        holder.cab_no.setText(currentItem.getPick());
         holder.time.setText(currentItem.getTime());
-        holder.to_loc.setText(currentItem.getTo_loc());
+        holder.to_loc.setText(currentItem.getStatus());
         holder.pick.setText(currentItem.getTimetostart());
     }
 

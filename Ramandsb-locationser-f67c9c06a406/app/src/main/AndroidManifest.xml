@@ -87,7 +87,9 @@
 
         <activity
             android:name=".StartService"
-            android:label="@string/title_activity_start_service"></activity>
+            android:label="@string/title_activity_start_service">
+
+        </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" />
@@ -102,6 +104,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".Gcm.WakeUpAct"
@@ -142,7 +145,8 @@
         <activity
             android:name=".UpcomingRides.SeeUpcomingRides"
             android:label="@string/title_activity_see_upcoming_rides"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme" >
+        </activity>
         <activity
             android:name=".StartTrip"
             android:label="@string/title_activity_start_trip"

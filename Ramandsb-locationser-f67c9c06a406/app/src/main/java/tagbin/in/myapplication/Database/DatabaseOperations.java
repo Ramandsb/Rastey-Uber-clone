@@ -24,7 +24,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
     }
 
     public static final int database_version = 2;
-    public String CREATE_QUERY = "CREATE TABLE " + TableData.Tableinfo.TABLE_NAME + "(" + TableData.Tableinfo.CAB_NO + " TEXT," +TableData.Tableinfo.TIME + " TEXT,"+TableData.Tableinfo.USER_ID + " TEXT," + TableData.Tableinfo.PICKUP_LOCATION + " TEXT," +TableData.Tableinfo.TIMETOSTART+" TEXT);";
+    public String CREATE_QUERY = "CREATE TABLE " + TableData.Tableinfo.TABLE_NAME + "(" + TableData.Tableinfo.CAB_NO + " TEXT," +TableData.Tableinfo.TIME + " TEXT,"+TableData.Tableinfo.USER_ID + " TEXT," + TableData.Tableinfo.PICKUP_LOCATION + " TEXT," +TableData.Tableinfo.TIMETOSTART+" TEXT,"+ TableData.Tableinfo.STATUS+" TEXT);";
 
     @Override
     public void onCreate(SQLiteDatabase sdb) {
@@ -39,7 +39,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void putInformation(DatabaseOperations dop, String cab_no, String time,String user_id,String pick,String timeto)
+    public void putInformation(DatabaseOperations dop, String cab_no, String time,String user_id,String pick,String timeto,String status)
 
     {
         SQLiteDatabase SQ = dop.getWritableDatabase();
@@ -49,23 +49,18 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         cv.put(TableData.Tableinfo.USER_ID, user_id);
         cv.put(TableData.Tableinfo.TIMETOSTART, timeto);
         cv.put(TableData.Tableinfo.PICKUP_LOCATION, pick);
+        cv.put(TableData.Tableinfo.STATUS, status);
         long k = SQ.insert(TableData.Tableinfo.TABLE_NAME, null, cv);
-        Log.d("Database Created","true");
+        Log.d("Database Created", "true");
 
     }
-    public  void arrangeInc(DatabaseOperations dop){
+    public void putStatus(DatabaseOperations dop,String status,String user_id){
         SQLiteDatabase SQ = dop.getWritableDatabase();
-//        Cursor c = SQ.query(TableData.Tableinfo.TABLE_NAME, null, null, null, null, null, TableData.Tableinfo.TIMETOSTART + " ASC");
-        Cursor cursor = SQ.rawQuery("SELECT * from " + TableData.Tableinfo.TABLE_NAME + " ORDER BY "+ TableData.Tableinfo.TIMETOSTART+" ASC",null, null);
-    if (cursor!=null && cursor.moveToFirst()){
-        do {
-           Log.d("arrangedData : ", cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.TIMETOSTART))) ;
-
-        }while (cursor.moveToNext());
+        ContentValues cv = new ContentValues();
+        cv.put(TableData.Tableinfo.STATUS, status);
+        SQ.update(TableData.Tableinfo.TABLE_NAME,cv, TableData.Tableinfo.USER_ID+"="+user_id,null);
     }
 
-
-    }
 //    public Cursor getInformation(DatabaseOperations dop) {
 //        SQLiteDatabase SQ = dop.getReadableDatabase();
 //        String[] coloumns = {TableData.Tableinfo.CAB_NO, TableData.Tableinfo.TIME,TableData.Tableinfo.USER_ID,TableData.Tableinfo.PICKUP_LOCATION,};
@@ -93,6 +88,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
                 item.setTo_loc(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.USER_ID)));
                 item.setPick(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.PICKUP_LOCATION)));
                 item.setTimetostart(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.TIMETOSTART)));
+                item.SetStatus(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.STATUS)));
                 listData.add(item);
                 Log.d("Database read", "true");
             }

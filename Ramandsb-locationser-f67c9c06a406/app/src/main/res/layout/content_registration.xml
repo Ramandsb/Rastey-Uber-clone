@@ -86,7 +86,9 @@
     </android.support.design.widget.TextInputLayout>
 
         <Spinner
+            android:layout_margin="10dp"
             android:id="@+id/carspinner"
+            android:prompt="@string/spinner_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
         </Spinner>

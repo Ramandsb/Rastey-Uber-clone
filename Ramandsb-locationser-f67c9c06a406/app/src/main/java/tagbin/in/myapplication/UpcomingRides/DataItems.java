@@ -5,18 +5,19 @@ package tagbin.in.myapplication.UpcomingRides;
  */
 public class DataItems {
 
-    private String cab_no,time,to_loc,pick,timetostart;
+    private String cab_no,time,to_loc,pick,timetostart,status;
 
 
     public DataItems() {
     }
 
-    public DataItems(String cab_no,String time,String to_loc,String pick,String timetostart) {
+    public DataItems(String cab_no,String time,String to_loc,String pick,String timetostart,String status) {
         this.cab_no=cab_no;
                 this.time=time;
         this.to_loc=to_loc;
         this.pick=pick;
         this.timetostart=timetostart;
+        this.status=status;
     }
 
         public String getCab_no() {
@@ -57,6 +58,14 @@ public class DataItems {
 
     public void setTimetostart(String timetostart) {
         this.timetostart = timetostart;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void SetStatus(String status) {
+        this.status = status;
     }
 
 

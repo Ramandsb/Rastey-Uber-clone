@@ -35,10 +35,12 @@ import tagbin.in.myapplication.Volley.AppController;
 
 
 public class ShowDetailsDetailActivity extends AppCompatActivity {
-    String cab_no,time,pickup,user_id;
-    String url= Config.BASE_URL+"driver_journey_start/";
+    String cab_no, time, pickup, user_id, status;
+    String url = Config.BASE_URL + "driver_journey_start/";
     SharedPreferences sharedPreferences;
+    FloatingActionButton fab;
 
+    public static boolean show=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,23 +49,25 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        Intent intent = getIntent();
-//        cab_no= intent.getExtras().getString("cab_no");
-//        time=  intent.getExtras().getString("time");
-//        pickup=  intent.getExtras().getString("pickup");
         sharedPreferences = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-        cab_no= sharedPreferences.getString("cab_no", "");
-        time=  sharedPreferences.getString("time", "");
-        pickup=   sharedPreferences.getString("pickup", "");
-        user_id=sharedPreferences.getString("user_id","");
+        cab_no = sharedPreferences.getString("cab_no", "");
+        time = sharedPreferences.getString("time", "");
+        pickup = sharedPreferences.getString("pickup", "");
+        user_id = sharedPreferences.getString("user_id", "");
+        status = sharedPreferences.getString("status", "");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               makeJsonObjReq();
+                makeJsonObjReq();
+                fab.setVisibility(View.INVISIBLE);
             }
         });
+        if (show==true){
+            fab.setVisibility(View.VISIBLE);
+        }else fab.setVisibility(View.INVISIBLE);
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -90,23 +94,24 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     private void makeJsonObjReq() {
 
 
-
-        Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("user_id",user_id);
+        final String Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("key", "");
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
         postParam.put("trip", "Started");
 
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                url,new JSONObject(postParam),
+                url, new JSONObject(postParam),
                 new Response.Listener<JSONObject>() {
 
                     @Override
-                    public void onResponse(JSONObject response){
+                    public void onResponse(JSONObject response) {
 
 
+                        show=false;
                         StartService.visible = true;
-                        Intent i = new Intent(ShowDetailsDetailActivity.this,StartService.class);
+                        Intent i = new Intent(ShowDetailsDetailActivity.this, StartService.class);
                         startActivity(i);
                         finish();
 
@@ -116,7 +121,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
-                Log.d("error",error.toString());
+                Log.d("error", error.toString());
             }
         }) {
 
@@ -124,10 +129,10 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
-
 
 
         };
@@ -138,16 +143,11 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -230,7 +230,7 @@ public class Registration extends AppCompatActivity {
 
 
 
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
                 urlSpinner,null,
                 new Response.Listener<JSONObject>() {
 

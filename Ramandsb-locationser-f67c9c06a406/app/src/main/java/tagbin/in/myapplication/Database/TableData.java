@@ -16,8 +16,9 @@ public class TableData {
         public static final String USER_ID = "user_id";
         public static final String TIMETOSTART = "timetostart";
         public static final String PICKUP_LOCATION = "pick_location";
+        public static final String STATUS = "status";
         public static final String DATABASE_NAME = "dbrides";
-        public static final String TABLE_NAME = "ridestable";
+        public static final String TABLE_NAME = "rides_table";
 
         public static final int database_version = 1;
     }

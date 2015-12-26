@@ -165,11 +165,12 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("response", response.toString());
 
                         try {
-                           // String key= response.getString("key");
+                            String key= response.getString("key");
                             String success= response.getString("success");
                             String username= response.getString("username");
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("username", username);
+                            editor.putString("auth_key",key);
                                 editor.commit();
                                Log.d("sharedPreferences", sharedPreferences.getAll().toString());
                             Intent i = new Intent(LoginActivity.this,StartService.class);
