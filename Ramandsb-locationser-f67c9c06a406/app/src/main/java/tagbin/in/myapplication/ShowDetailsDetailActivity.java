@@ -37,10 +37,11 @@ import tagbin.in.myapplication.Volley.AppController;
 public class ShowDetailsDetailActivity extends AppCompatActivity {
     String cab_no, time, pickup, user_id, status;
     String url = Config.BASE_URL + "driver_journey_start/";
-    SharedPreferences sharedPreferences;
+    SharedPreferences SELECTEDRIDEDETAILS_sharedPreferences;
+    SharedPreferences Logindetails_sharedPreferences;
     FloatingActionButton fab;
 
-    public static boolean show=true;
+    public static boolean show=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,25 +50,26 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        sharedPreferences = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-        cab_no = sharedPreferences.getString("cab_no", "");
-        time = sharedPreferences.getString("time", "");
-        pickup = sharedPreferences.getString("pickup", "");
-        user_id = sharedPreferences.getString("user_id", "");
-        status = sharedPreferences.getString("status", "");
+        SELECTEDRIDEDETAILS_sharedPreferences = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
+        Logindetails_sharedPreferences=getSharedPreferences(LoginActivity.LOGINDETAILS,Context.MODE_PRIVATE);
+        cab_no = SELECTEDRIDEDETAILS_sharedPreferences.getString("cab_no", "");
+        time = SELECTEDRIDEDETAILS_sharedPreferences.getString("time", "");
+        pickup = SELECTEDRIDEDETAILS_sharedPreferences.getString("pickup", "");
+        user_id = SELECTEDRIDEDETAILS_sharedPreferences.getString("user_id", "");
+        status = SELECTEDRIDEDETAILS_sharedPreferences.getString("status", "");
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeJsonObjReq();
-                fab.setVisibility(View.INVISIBLE);
-            }
-        });
-        if (show==true){
-            fab.setVisibility(View.VISIBLE);
-        }else fab.setVisibility(View.INVISIBLE);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                makeJsonObjReq();
+//                fab.setVisibility(View.INVISIBLE);
+//            }
+//        });
+//        if (show==true){
+//            fab.setVisibility(View.VISIBLE);
+//        }else fab.setVisibility(View.INVISIBLE);
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -94,10 +96,12 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     private void makeJsonObjReq() {
 
 
-        final String Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("key", "");
+        final String Auth_key = "ApiKey " + cab_no + ":" + Logindetails_sharedPreferences.getString("key", "");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
+        postParam.put("lat", StartService.mylat.toString());
+        postParam.put("lng", StartService.mylong.toString());
         postParam.put("trip", "Started");
 
 
@@ -107,10 +111,10 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-
-
                         show=false;
                         StartService.visible = true;
+//                        ShowDetailsDetailFragment.arrived_container.setVisibility(View.VISIBLE);
+//                        ShowDetailsDetailFragment.arrBool=true;
                         Intent i = new Intent(ShowDetailsDetailActivity.this, StartService.class);
                         startActivity(i);
                         finish();

@@ -19,6 +19,12 @@ public class TableData {
         public static final String STATUS = "status";
         public static final String DATABASE_NAME = "dbrides";
         public static final String TABLE_NAME = "rides_table";
+        ////////////////////////////////////////////////////
+        public static final String UNIQUE_ID = "unique_id";
+        public static final String LAT = "lat";
+        public static final String LNG = "long";
+        public static final String TIMESTAMP = "timestamp";
+        public static final String LOC_TABLE_NAME = "loc_table";
 
         public static final int database_version = 1;
     }

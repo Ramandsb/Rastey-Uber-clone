@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import junit.framework.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ import tagbin.in.myapplication.Database.TableData;
 import tagbin.in.myapplication.R;
 import tagbin.in.myapplication.ShowDetailsDetailActivity;
 import tagbin.in.myapplication.StartTrip;
+import tagbin.in.myapplication.TestActivity;
 
 public class SeeUpcomingRides extends AppCompatActivity {
 
@@ -43,7 +46,6 @@ public class SeeUpcomingRides extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mRecyclerview= (RecyclerView) findViewById(R.id.Reclist);
-        click = (Button) findViewById(R.id.click);
         sharedPreferences = getSharedPreferences(SELECTEDRIDEDETAILS,MODE_PRIVATE);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         mAdapter = new MyAdapter(this);
@@ -73,29 +75,30 @@ public class SeeUpcomingRides extends AppCompatActivity {
                 editor.commit();
                 Intent intent = new Intent(SeeUpcomingRides.this, ShowDetailsDetailActivity.class);
                 startActivity(intent);
+                finish();
                 Toast.makeText(SeeUpcomingRides.this, "clicked" + position + "  //" + dataItems.getCab_no(), Toast.LENGTH_LONG).show();
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.GONE);
+//        fab.setVisibility(View.GONE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                for (int i= 0;i<10;i++){
-//                    dop.putInformation(dop,"cab_no :"+i,"Time :"+i+":"+i,"user id :refr"+i,"Gurgaon :"+i,""+i,"pending");
-//                }
-//                databaselist= dop.readData(dop);
-//                mAdapter.setData((ArrayList<DataItems>) databaselist, true);
+                for (int i= 0;i<10;i++){
+                    dop.putInformation(dop,"cab_no :"+i,"Time :"+i+":"+i,""+i,"Gurgaon :"+i,""+i,"pending");
+                }
+                databaselist= dop.readData(dop);
+                mAdapter.setData((ArrayList<DataItems>) databaselist, true);
             }
         });
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
-        fab2.setVisibility(View.GONE);
+       // fab2.setVisibility(View.GONE);
         fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                dop.putStatus(dop,"true",""+3);
-//                databaselist= dop.readData(dop);
-//                mAdapter.setData((ArrayList<DataItems>) databaselist, true);
+                dop.putStatus(dop,"accept",""+3);
+                databaselist= dop.readData(dop);
+                mAdapter.setData((ArrayList<DataItems>) databaselist, true);
             }
         });
 

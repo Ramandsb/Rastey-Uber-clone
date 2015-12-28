@@ -3,6 +3,7 @@ package tagbin.in.myapplication;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
@@ -45,20 +46,26 @@ public class ShowDetailsDetailFragment extends Fragment {
      * represents.
      *
      */
-    TextView cab ,tym,pick;
+    TextView cab ,tym,pick,to_loc;
+    public static boolean show=false;
+    public static boolean arr_show=true;
     View status_bar;
     SharedPreferences sharedPreferences;
     String cab_no,time,pickup,user_id,status;
     View buttonsView;
     Button goback;
     String url = Config.BASE_URL + "driver_job/";
+    String jrnyurl = Config.BASE_URL + "driver_journey_start/";
     public static final String ARG_ITEM_ID = "item_id";
     View  avail,notAvail;
     TextView messageView;
     ProgressBar progressBar;
     AlertDialog alert;
+    Button starttrip,arrived;
+    public  static View arrived_container;
 //    http://192.168.0.4:8001/api/v1/CreateUserResource/pending_job_status/
     DatabaseOperations dop;
+    public static boolean arrBool=false;
     String statusurl = Config.BASE_URL + "pending_job_status/";
 
 
@@ -94,22 +101,29 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         View rootView = inflater.inflate(R.layout.showdetails_detail, container, false);
 
         status_bar=rootView.findViewById(R.id.status_bar);
-         cab= (TextView) rootView.findViewById(R.id.cab_no);
-         tym= (TextView) rootView.findViewById(R.id.time);
-         pick= (TextView) rootView.findViewById(R.id.pickup);
+         cab= (TextView) rootView.findViewById(R.id.mcab_no);
+         tym= (TextView) rootView.findViewById(R.id.mtime);
+         pick= (TextView) rootView.findViewById(R.id.mpick);
+        to_loc= (TextView) rootView.findViewById(R.id.mto_location);
         buttonsView= rootView.findViewById(R.id.buttons_view);
         goback = (Button) rootView.findViewById(R.id.gobackBut);
         avail=rootView.findViewById(R.id.available);
         notAvail=rootView.findViewById(R.id.notAvailcontainer);
+        arrived_container= rootView.findViewById(R.id.arrived_container);
+//        if (arrBool){
+//            arrived_container.setVisibility(View.VISIBLE);
+//        }else arrived_container.setVisibility(View.GONE);
         FloatingActionButton accept = (FloatingActionButton) rootView.findViewById(R.id.Accept);
         FloatingActionButton reject = (FloatingActionButton) rootView.findViewById(R.id.Reject);
+         starttrip= (Button) rootView.findViewById(R.id.starttrip);
+         arrived = (Button) rootView.findViewById(R.id.arrived);
          dop = new DatabaseOperations(getActivity());
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 makeJsonObjReq("true");
                 showDialog();
-                dop.putStatus(dop,"accept",user_id);
+                dop.putStatus(dop, "accept", user_id);
             }
         });
         reject.setOnClickListener(new View.OnClickListener() {
@@ -121,24 +135,57 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                 dop.deleteRow(dop, user_id);
             }
         });
+
+        starttrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tripstartRequest();
+                showDialog();
+            }
+        });
+
+        arrived.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeJsonObjReq("arrived");
+                arrived.setVisibility(View.GONE);
+                show=true;
+                arr_show=false;
+                starttrip.setVisibility(View.VISIBLE);
+                showDialog();
+            }
+        });
         goback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dop.deleteRow(dop,user_id);
+                dop.deleteRow(dop, user_id);
                 getActivity().finish();
             }
         });
         cab.setText(status);
         tym.setText(time);
         pick.setText(pickup);
+        to_loc.setText(user_id);
         if (status.equals("pending")){
             status_bar.setBackgroundColor(getResources().getColor(R.color.red));
+            arrived_container.setVisibility(View.GONE);
         }else if (status.equals("accept")){
-            buttonsView.setVisibility(View.INVISIBLE);
+            buttonsView.setVisibility(View.GONE);
             notAvail.setVisibility(View.GONE);
+            arrived_container.setVisibility(View.VISIBLE);
             status_bar.setBackgroundColor(getResources().getColor(R.color.green));
-
+        }else if (status.equals("Trip Started")){
+            buttonsView.setVisibility(View.GONE);
+            notAvail.setVisibility(View.GONE);
+            arrived_container.setVisibility(View.VISIBLE);
+            status_bar.setBackgroundColor(getResources().getColor(R.color.green));
         }
+        if (show==true){
+            starttrip.setVisibility(View.VISIBLE);
+        }else starttrip.setVisibility(View.GONE);
+        if (arr_show){
+            arrived.setVisibility(View.VISIBLE);
+        }else arrived.setVisibility(View.GONE);
         return rootView;
     }
     public void customDialog()
@@ -164,9 +211,13 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam = new HashMap<String, String>();
-        postParam.put("username", cab_no);
-        postParam.put("success", string);
-        postParam.put("user_id", user_id);
+        if (string.equals("arrived")){
+            postParam.put("arrived","true");
+        }else {
+            postParam.put("username", cab_no);
+            postParam.put("success", string);
+            postParam.put("user_id", user_id);
+        }
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
@@ -179,17 +230,28 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
-                        buttonsView.setVisibility(View.INVISIBLE);
-                        if (string.equals("true")){
-                            messageView.setText("Ride Accepter");
-                            progressBar.setVisibility(View.GONE);
+                        if (string.equals("arrived")){
+                            arrived.setVisibility(View.GONE);
+                            starttrip.setVisibility(View.VISIBLE);
+                            show=true;
+                            arr_show=false;
+                            
                         }else {
-                           if(string.equals("false")){
-                                messageView.setText("Ride Rejected");
-                               progressBar.setVisibility(View.GONE);
+                            buttonsView.setVisibility(View.GONE);
+                            if (string.equals("true")) {
+                                messageView.setText("Ride Accepted");
+                                progressBar.setVisibility(View.GONE);
+                            } else {
+                                if (string.equals("false")) {
+                                    messageView.setText("Ride Rejected");
+                                    progressBar.setVisibility(View.GONE);
+                                }
                             }
                         }
-                        dismissDialog();
+                        Intent i =  new Intent(getActivity(),SeeUpcomingRides.class);
+                        startActivity(i);
+                        getActivity().finish();
+
 
 
 
@@ -223,6 +285,61 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
+    private void tripstartRequest() {
+        SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("user_id", user_id);
+        postParam.put("username", cab_no);
+        postParam.put("lat", StartService.mylat.toString());
+        postParam.put("lng", StartService.mylong.toString());
+        postParam.put("trip", "Started");
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                jrnyurl, new JSONObject(postParam),
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        StartService.visible = true;
+                        starttrip.setVisibility(View.GONE);
+                        show=false;
+                        dop.putStatus(dop,"Trip Started",user_id);
+                        Intent i = new Intent(getActivity(), StartService.class);
+                        startActivity(i);
+                        getActivity().finish();
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+                Log.d("error", error.toString());
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
+                return headers;
+            }
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+
 
     public void displayErrors(VolleyError error) {
         if (error instanceof TimeoutError || error instanceof NoConnectionError) {

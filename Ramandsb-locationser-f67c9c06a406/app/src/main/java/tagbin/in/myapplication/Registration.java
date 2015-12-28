@@ -61,8 +61,8 @@ import tagbin.in.myapplication.Volley.AppController;
 import tagbin.in.myapplication.Volley.CustomRequest;
 import tagbin.in.myapplication.Volley.MakeRequest;
 public class Registration extends AppCompatActivity {
-    EditText name, mobno, cabno, password, conpass;
-    String mName, mMobno, mCabno, mPass, mConpass;
+    EditText name, mobno, cabno, password, conpass,car_name;
+    String mName, mMobno, mCabno, mPass, mConpass,mCarName;
     String url = Config.BASE_URL+"create_user/";
     String urlSpinner = Config.BASE_URL+"get_cab/";
     ////////////////////GCM WORKING/////////////////////////////////
@@ -116,6 +116,7 @@ public class Registration extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         conpass = (EditText) findViewById(R.id.conPass);
         carSpinner = (Spinner) findViewById(R.id.carspinner);
+        car_name= (EditText) findViewById(R.id.carname);
         gcmInitialise();
         customDialog();
 
@@ -147,6 +148,7 @@ public class Registration extends AppCompatActivity {
                 mName = name.getText().toString();
                 mMobno = mobno.getText().toString();
                 mCabno = cabno.getText().toString();
+                mCarName=car_name.getText().toString();
                 mPass = password.getText().toString();
                 mConpass = conpass.getText().toString();
                 if (GcmRegistration.equals("")) {
@@ -155,7 +157,7 @@ public class Registration extends AppCompatActivity {
 
 
                     if (mPass.equals(mConpass)) {
-                    makeJsonObjReq(mName, mMobno, mCabno, mPass,GcmRegistration);
+                    makeJsonObjReq(mName, mMobno, mCabno,mCarName, mPass,GcmRegistration);
 //                        Intent i = new Intent(Registration.this, LoginActivity.class);
 //                        startActivity(i);
                     } else password.setError("Password not match");
@@ -298,7 +300,7 @@ public class Registration extends AppCompatActivity {
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
-    private void makeJsonObjReq(String name,String phno,String cab_no,String password,String gcmRegistration) {
+    private void makeJsonObjReq(String name,String phno,String cab_no,String mCarName,String password,String gcmRegistration) {
 
 
 
@@ -308,6 +310,7 @@ public class Registration extends AppCompatActivity {
         postParam.put("num",phno );
         postParam.put("car_type_id",selected_id);
         postParam.put("car_type_name",selectedCar_type);
+        postParam.put("car_name",mCarName);
         postParam.put("password", password);
         postParam.put("gcm_regid", gcmRegistration);
         JSONObject jsonObject = new JSONObject(postParam);

@@ -25,10 +25,12 @@ public class DatabaseOperations extends SQLiteOpenHelper {
 
     public static final int database_version = 2;
     public String CREATE_QUERY = "CREATE TABLE " + TableData.Tableinfo.TABLE_NAME + "(" + TableData.Tableinfo.CAB_NO + " TEXT," +TableData.Tableinfo.TIME + " TEXT,"+TableData.Tableinfo.USER_ID + " TEXT," + TableData.Tableinfo.PICKUP_LOCATION + " TEXT," +TableData.Tableinfo.TIMETOSTART+" TEXT,"+ TableData.Tableinfo.STATUS+" TEXT);";
+    public String CREATE_LOC_QUERY = "CREATE TABLE " + TableData.Tableinfo.LOC_TABLE_NAME + "(" + TableData.Tableinfo.UNIQUE_ID + " TEXT," +TableData.Tableinfo.LAT + " TEXT,"+TableData.Tableinfo.LNG + " TEXT," + TableData.Tableinfo.TIMESTAMP + " TEXT);";
 
     @Override
     public void onCreate(SQLiteDatabase sdb) {
         sdb.execSQL(CREATE_QUERY);
+        sdb.execSQL(CREATE_LOC_QUERY);
         Log.d("Database operations", "Table created");
 
     }
@@ -54,12 +56,26 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         Log.d("Database Created", "true");
 
     }
+    public void putLatLong(DatabaseOperations dop, String unique_id, String lat,String lng,String timestamp)
+
+    {
+        SQLiteDatabase SQ = dop.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(TableData.Tableinfo.UNIQUE_ID, unique_id);
+        cv.put(TableData.Tableinfo.LAT, lat);
+        cv.put(TableData.Tableinfo.LNG, lng);
+        cv.put(TableData.Tableinfo.TIMESTAMP, timestamp);
+        long k = SQ.insert(TableData.Tableinfo.LOC_TABLE_NAME, null, cv);
+        Log.d("Database putLatLon", "true");
+
+    }
     public void putStatus(DatabaseOperations dop,String status,String user_id){
         SQLiteDatabase SQ = dop.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(TableData.Tableinfo.STATUS, status);
         SQ.update(TableData.Tableinfo.TABLE_NAME,cv, TableData.Tableinfo.USER_ID+"="+user_id,null);
     }
+
 
 //    public Cursor getInformation(DatabaseOperations dop) {
 //        SQLiteDatabase SQ = dop.getReadableDatabase();

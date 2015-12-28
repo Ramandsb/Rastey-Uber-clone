@@ -45,14 +45,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
     @Override
     public void onBindViewHolder(MyviewHolder holder, final int position) {
          currentItem = infoList.get(position);
-//        holder.click.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                Toast.makeText(context, "Clicked: " + position+"///"+currentItem.getCab_no(), Toast.LENGTH_SHORT).show();
-//
-//            }
-//        });
         holder.cab_no.setText(currentItem.getPick());
         holder.time.setText(currentItem.getTime());
         holder.to_loc.setText(currentItem.getStatus());
@@ -70,7 +62,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
         TextView time;
         TextView to_loc;
         TextView pick;
-        Button click;
 
 
         public MyviewHolder(View itemView) {
@@ -79,7 +70,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
             time = (TextView) itemView.findViewById(R.id.mtime);
             to_loc = (TextView) itemView.findViewById(R.id.mto_location);
             pick = (TextView) itemView.findViewById(R.id.pick);
-            click= (Button) itemView.findViewById(R.id.click);
 
 
         }

@@ -81,6 +81,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,8 @@ import tagbin.in.myapplication.Volley.AppController;
 
 public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener,NavigationView.OnNavigationItemSelectedListener{
 
-   static Double mylat, mylong;
+    DatabaseOperations dop;
+  public static Double mylat, mylong;
     public static final String BROADCAST_ACTION = "Hello World";
     TextView latTv,longTv;
     private GoogleMap mMap;
@@ -116,6 +118,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     DrawerLayout drawer;
     TextView navdraname;
      String Auth_key;
+    String uni="";
 
 
 
@@ -137,6 +140,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        usrname=sharedPreferences.getString("username","");
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 //        navdraname= (TextView) findViewById(R.id.navdraname);
@@ -145,8 +150,6 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             @Override
             public void onClick(View v) {
                 showDialog();
-                SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-                usrname=sharedPreferences.getString("username","");
                 makeJsonObjReq(usrname);
                 Log.d("username",usrname);
                journey.setVisibility(View.INVISIBLE);
@@ -226,39 +229,16 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 mMap.setOnMapClickListener(this);
                 mMap.setBuildingsEnabled(true);
                 mMap.setTrafficEnabled(true);
-//                mMap.getUiSettings().setTiltGesturesEnabled(false);
+                mMap.getUiSettings().setTiltGesturesEnabled(false);
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setAllGesturesEnabled(true);
-
-               // mMap.setMyLocationEnabled(true);
-                //mMap.getUiSettings().setMyLocationButtonEnabled(true);
                  start = new LatLng(28.502683 , 77.085969);
                 marker=mMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .icon(BitmapDescriptorFactory
                                 .fromResource(R.mipmap.myc))
                         .anchor(0.5f, 0.5f).position(start));
-//                mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-//                    @Override
-//                    public void onMyLocationChange(Location location) {
-//                        mMap.clear();
-//                        marker=mMap.addMarker(new MarkerOptions()
-//                                .flat(false)
-//                                .icon(BitmapDescriptorFactory
-//                                        .fromResource(R.mipmap.carr))
-//                                .anchor(0.5f, 0.5f).position(start));
-//                        latTv.setText("myLocationChange" + location.getLatitude() + " " + location.getLongitude());
-//                        LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-//                        animateMarker(marker,ll,false);
-//
-//
-////                        Log.d("rotation",""+orX());
-//                    }
-//                });
-//
-
-//               float vv= (float) Math.toDegrees(orX());
                 CameraPosition INIT =
                         new CameraPosition.Builder()
                                 .target(new LatLng(19.0222, 72.8666))
@@ -267,23 +247,12 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                                 .build();
 
                 // use map to move camera into position
-                mMap.moveCamera( CameraUpdateFactory.newCameraPosition(INIT) );
-
-                //create initial marker
-//                mMap.addMarker( new MarkerOptions()
-//                        .position( new LatLng(19.0216, 72.8646) )
-//                        .title("Location")
-//                        .snippet("First Marker")).showInfoWindow();
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(INIT));
             }
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
+
 
     private BroadcastReceiver uiUpdated= new BroadcastReceiver() {
 
@@ -295,6 +264,15 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             ArrayList<LatLng> latlong = new ArrayList<LatLng>();
 
             Log.d("vals", intent.getExtras().getString("myLat") + "  " + intent.getExtras().getString("myLong"));
+            DatabaseOperations dop = new DatabaseOperations(StartService.this);
+            Long tsLong = System.currentTimeMillis()/1000;
+            if (uni.equals("")){
+                uni=tsLong.toString();
+            }else {
+                uni=uni;
+            }
+            String ts = tsLong.toString();
+            dop.putLatLong(dop,usrname+uni,mylat.toString(),mylong.toString(),ts);
 
              latLng = new LatLng(mylat, mylong);
             latlong.add(latLng);
@@ -507,6 +485,12 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private void makeJsonObjReq(String s) {
         SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
@@ -517,6 +501,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id",user_id);
         postParam.put("username", cab_no);
+        postParam.put("lat", mylat.toString());
+        postParam.put("lng", mylong.toString());
         postParam.put("trip", "End");
 
         JSONObject jsonObject = new JSONObject(postParam);
@@ -533,8 +519,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         progressBar.setVisibility(View.GONE);
                         messageView.setText("Job Finished");
                         visible=false;
-                        ShowDetailsDetailActivity.show=true;
-                        DatabaseOperations dop= new DatabaseOperations(StartService.this);
+                        ShowDetailsDetailFragment.show=false;
+                        ShowDetailsDetailFragment.arr_show=true;
+                         dop= new DatabaseOperations(StartService.this);
                         dop.deleteRow(dop,user_id);
 
 
