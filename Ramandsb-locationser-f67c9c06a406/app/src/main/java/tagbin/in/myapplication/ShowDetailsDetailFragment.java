@@ -56,6 +56,8 @@ public class ShowDetailsDetailFragment extends Fragment {
     Button goback;
     String url = Config.BASE_URL + "driver_job/";
     String jrnyurl = Config.BASE_URL + "driver_journey_start/";
+    String arrivedUrl = Config.BASE_URL + "arrived/";
+    String globalurl="";
     public static final String ARG_ITEM_ID = "item_id";
     View  avail,notAvail;
     TextView messageView;
@@ -88,6 +90,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             status=sharedPreferences.getString("status","");
             customDialog();
             Log.d("values",cab_no+"///"+time+"///"+user_id+"////"+status);
+            showDialog();
             makeJsonObjReq();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
@@ -159,6 +162,8 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             @Override
             public void onClick(View v) {
                 dop.deleteRow(dop, user_id);
+                Intent i = new Intent(getActivity(),SeeUpcomingRides.class);
+                startActivity(i);
                 getActivity().finish();
             }
         });
@@ -178,7 +183,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             buttonsView.setVisibility(View.GONE);
             notAvail.setVisibility(View.GONE);
             arrived_container.setVisibility(View.VISIBLE);
-            status_bar.setBackgroundColor(getResources().getColor(R.color.green));
+            status_bar.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         }
         if (show==true){
             starttrip.setVisibility(View.VISIBLE);
@@ -212,18 +217,21 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam = new HashMap<String, String>();
         if (string.equals("arrived")){
+            postParam.put("user_id", user_id);
             postParam.put("arrived","true");
+            globalurl=arrivedUrl;
         }else {
             postParam.put("username", cab_no);
             postParam.put("success", string);
             postParam.put("user_id", user_id);
+            globalurl=url;
         }
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                url, new JSONObject(postParam),
+                globalurl, new JSONObject(postParam),
                 new Response.Listener<JSONObject>() {
 
                     @Override
@@ -241,16 +249,21 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                             if (string.equals("true")) {
                                 messageView.setText("Ride Accepted");
                                 progressBar.setVisibility(View.GONE);
+                                arrived_container.setVisibility(View.VISIBLE);
+                                cab.setText("Ride Accepted");
+
                             } else {
                                 if (string.equals("false")) {
                                     messageView.setText("Ride Rejected");
                                     progressBar.setVisibility(View.GONE);
+                                    cab.setText("Ride Rejected");
+                                    Intent i = new Intent(getActivity(),SeeUpcomingRides.class);
+                                    startActivity(i);
+                                    getActivity().finish();
                                 }
                             }
                         }
-                        Intent i =  new Intent(getActivity(),SeeUpcomingRides.class);
-                        startActivity(i);
-                        getActivity().finish();
+
 
 
 
@@ -299,7 +312,6 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
                 jrnyurl, new JSONObject(postParam),
                 new Response.Listener<JSONObject>() {
-
                     @Override
                     public void onResponse(JSONObject response) {
                         StartService.visible = true;
@@ -309,8 +321,6 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                         Intent i = new Intent(getActivity(), StartService.class);
                         startActivity(i);
                         getActivity().finish();
-
-
                     }
                 }, new Response.ErrorListener() {
 
@@ -375,16 +385,18 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
-                        try {
-                            if (response.getString("success").equals("true")){
-                                avail.setVisibility(View.VISIBLE);
-                                buttonsView.setVisibility(View.GONE);
-                                notAvail.setVisibility(View.GONE);
-                            }else avail.setVisibility(View.GONE);
-                            notAvail.setVisibility(View.VISIBLE);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            if (response.getString("success").equals("true")){
+//                                avail.setVisibility(View.VISIBLE);
+//                                buttonsView.setVisibility(View.GONE);
+//                                notAvail.setVisibility(View.GONE);
+//                            }else avail.setVisibility(View.GONE);
+//                            notAvail.setVisibility(View.VISIBLE);
+//                        }
+//                        catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+                        dismissDialog();
 
                     }
                 }, new Response.ErrorListener() {

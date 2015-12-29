@@ -26,6 +26,7 @@ import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.Database.TableData;
 import tagbin.in.myapplication.R;
 import tagbin.in.myapplication.ShowDetailsDetailActivity;
+import tagbin.in.myapplication.StartService;
 import tagbin.in.myapplication.StartTrip;
 import tagbin.in.myapplication.TestActivity;
 
@@ -37,6 +38,7 @@ public class SeeUpcomingRides extends AppCompatActivity {
     private List<DataItems> databaselist = new ArrayList<DataItems>();
     Button click;
     DataItems dataItems;
+    DatabaseOperations dop;
     public  static String SELECTEDRIDEDETAILS="rideDetails";
     SharedPreferences sharedPreferences;
     @Override
@@ -52,7 +54,7 @@ public class SeeUpcomingRides extends AppCompatActivity {
         mRecyclerview.setAdapter(mAdapter);
         mRecyclerview.setHasFixedSize(false);
         mRecyclerview.setLayoutManager(linearLayoutManager);
-        final DatabaseOperations dop = new DatabaseOperations(this);
+         dop = new DatabaseOperations(this);
         databaselist= dop.readData(dop);
         mAdapter.setData((ArrayList<DataItems>) databaselist, true);
         arrayList = new ArrayList();
@@ -85,7 +87,7 @@ public class SeeUpcomingRides extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 for (int i= 0;i<10;i++){
-                    dop.putInformation(dop,"cab_no :"+i,"Time :"+i+":"+i,""+i,"Gurgaon :"+i,""+i,"pending");
+                    dop.putInformation(dop,""+i,"Time :"+i+":"+i,""+i,"Gurgaon :"+i,""+i,"pending");
                 }
                 databaselist= dop.readData(dop);
                 mAdapter.setData((ArrayList<DataItems>) databaselist, true);
@@ -104,4 +106,18 @@ public class SeeUpcomingRides extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i = new Intent(this, StartService.class);
+        startActivity(i);
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        databaselist= dop.readData(dop);
+        mAdapter.setData((ArrayList<DataItems>) databaselist, true);
+    }
 }

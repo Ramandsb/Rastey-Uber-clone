@@ -36,11 +36,11 @@
 </android.support.design.widget.CoordinatorLayout>
 
     <Button
-        android:background="#ffffff"
+        android:background="@color/colorPrimary"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Trip Ends"
-        android:textColor="#987272"
+        android:text="End Trip"
+        android:textColor="#ffffff"
         android:id="@+id/Journey"
         android:typeface="normal"
         android:layout_marginLeft="30dp"
@@ -48,4 +48,6 @@
         android:layout_marginBottom="52dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <!--android:textColor="#987272"-->
 </RelativeLayout>

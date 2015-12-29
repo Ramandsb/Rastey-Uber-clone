@@ -90,13 +90,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Gcm.ShareExternalServer;
+import tagbin.in.myapplication.UpcomingRides.MyAdapter;
 import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
 
 public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener,NavigationView.OnNavigationItemSelectedListener{
 
     DatabaseOperations dop;
-  public static Double mylat, mylong;
+  public static Double mylat=0.000, mylong=0.000;
     public static final String BROADCAST_ACTION = "Hello World";
     TextView latTv,longTv;
     private GoogleMap mMap;
@@ -186,6 +187,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigationdrawer, menu);
+        MenuItem rides = menu.findItem(R.id.rides);
+        DatabaseOperations dop= new DatabaseOperations(this);
+        rides.setTitle(dop.getProfilesCount());
         return true;
     }
 
@@ -201,13 +205,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            logoutdialog();
+        if (id == R.id.rides) {
+            Intent i = new Intent(this, SeeUpcomingRides.class);
+            startActivity(i);
+            finish();
             return true;
         }
         if (id == android.R.id.home) {
 
-            Log.d("hi", "kkk");
              drawer.openDrawer(GravityCompat.START);
             return true;
         }
@@ -523,6 +528,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         ShowDetailsDetailFragment.arr_show=true;
                          dop= new DatabaseOperations(StartService.this);
                         dop.deleteRow(dop,user_id);
+                        finish();
+                        Intent i = getIntent();
+                        startActivity(i);
 
 
                     }
@@ -620,8 +628,12 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         if (id == R.id.nav_camera) {
            Intent i = new Intent(this, SeeUpcomingRides.class);
             startActivity(i);
+            finish();
         } else if (id == R.id.nav_gallery) {
             logoutdialog();
+        }else if(id==R.id.call){
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "01148844884"));
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

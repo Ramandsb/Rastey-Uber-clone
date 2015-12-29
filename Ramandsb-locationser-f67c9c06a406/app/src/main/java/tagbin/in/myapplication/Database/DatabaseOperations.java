@@ -125,9 +125,18 @@ public class DatabaseOperations extends SQLiteOpenHelper {
     public  void eraseData(DatabaseOperations dop){
         SQLiteDatabase db = dop.getWritableDatabase(); // helper is object extends SQLiteOpenHelper
         db.delete(TableData.Tableinfo.TABLE_NAME, null, null);
-        Log.d("Database Erased","true");
+        Log.d("Database Erased", "true");
     }
 
+    public String  getProfilesCount() {
+        String countQuery = "SELECT  * FROM " + TableData.Tableinfo.TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        String count = Integer.toString(cnt);
+        return count;
+    }
     public void removeAll()
     {
         // db.delete(String tableName, String whereClause, String[] whereArgs);

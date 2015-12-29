@@ -1,11 +1,15 @@
 package tagbin.in.myapplication.UpcomingRides;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -45,10 +49,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
     @Override
     public void onBindViewHolder(MyviewHolder holder, final int position) {
          currentItem = infoList.get(position);
-        holder.cab_no.setText(currentItem.getPick());
+        holder.pick.setText(currentItem.getPick());
         holder.time.setText(currentItem.getTime());
-        holder.to_loc.setText(currentItem.getStatus());
-        holder.pick.setText(currentItem.getTimetostart());
+        holder.to_loc.setText(currentItem.getTimetostart());
+
+        if (currentItem.getStatus().equals("pending")){
+            holder.cab_no.setText("Pending");
+            holder.icon.setImageResource(R.drawable.pending);
+            holder.colbar.setBackgroundColor(Color.parseColor("#FFFFEE00"));
+        }else if (currentItem.getStatus().equals("accept")){
+            holder.cab_no.setText("Ride Accepted");
+            holder.icon.setImageResource(R.drawable.success);
+            holder.colbar.setBackgroundColor(Color.parseColor("#FF36FA00"));
+        }else if (currentItem.getStatus().equals("Trip started")){
+            holder.cab_no.setText("Trip started");
+            holder.icon.setImageResource(R.drawable.tripaccepted);
+            holder.colbar.setBackgroundColor(Color.parseColor("#FF5722"));
+        }
     }
 
 
@@ -56,12 +73,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
     public int getItemCount() {
         return infoList.size();
     }
+    public String getCount() {
+        String count= Integer.toString(infoList.size());
+        return count;
+    }
 
     static class MyviewHolder extends RecyclerView.ViewHolder {
         TextView cab_no;
         TextView time;
         TextView to_loc;
         TextView pick;
+        ImageView icon;
+        View colbar;
 
 
         public MyviewHolder(View itemView) {
@@ -70,7 +93,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
             time = (TextView) itemView.findViewById(R.id.mtime);
             to_loc = (TextView) itemView.findViewById(R.id.mto_location);
             pick = (TextView) itemView.findViewById(R.id.pick);
-
+            icon= (ImageView) itemView.findViewById(R.id.icon);
+            colbar=  itemView.findViewById(R.id.colbar);
 
         }
     }

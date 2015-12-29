@@ -123,8 +123,8 @@ public class WakeUpAct extends Activity {
                  current_minuts_int = Integer.parseInt(current_minuts);
                  current_sec = (String) jsonObject.get("current_sec");
                  current_sec_int = Integer.parseInt(current_sec);
-                cabtv.setText(cab_no);
-                timetv.setText(pickup_houre+":"+pickup_minuts);
+                cabtv.setText(pickup_time);
+                timetv.setText(pickup_address);
                 fromtv.setText(pickup_address);
                 long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
                 String timinmilli=Long.toString(timeinmili);

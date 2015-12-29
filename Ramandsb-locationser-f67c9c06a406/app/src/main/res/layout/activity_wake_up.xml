@@ -54,7 +54,7 @@
         android:id="@+id/mcab_no"
         android:gravity="center"
         android:textColor="#ffffff"
-        android:layout_marginBottom="84dp"
+        android:layout_marginBottom="20dp"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/mtime" />
 

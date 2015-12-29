@@ -37,50 +37,19 @@
                 android:background="#ffffff">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:id="@+id/relativeLayout"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="vertical"
                         android:background="#ffffff">
-
-                        <TextView
-                            android:id="@+id/mcab_no"
-                            android:layout_width="150dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginTop="5dp"
-                            android:text="cab_no"
-                            android:textColor="#111111"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:id="@+id/mtime"
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_margin="20dp"
-                            android:text="time"
-                            android:textColor="#111111" />
-
-                        <TextView
-                            android:id="@+id/mto_location"
-                            android:layout_width="150dp"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_below="@+id/mcab_no"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginTop="2dp"
-                            android:text="to_location"
-                            android:textColor="#111111"
-                            android:textSize="17dp" />
-
                         <TextView
                             android:id="@+id/mpick"
-                            android:layout_width="150dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_below="@+id/mto_location"
@@ -90,7 +59,39 @@
                             android:text="Pick"
                             android:textColor="#111111"
                             android:textSize="17dp" />
-                    </RelativeLayout>
+
+
+                        <TextView
+                            android:id="@+id/mto_location"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_below="@+id/mcab_no"
+                            android:layout_marginLeft="10dp"
+                            android:text="to_location"
+                            android:textColor="#111111"
+                            android:textSize="17dp" />
+
+                        <TextView
+                            android:id="@+id/mtime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="time"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#111111" />
+                        <TextView
+                            android:id="@+id/mcab_no"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="5dp"
+                            android:text="cab_no"
+                            android:textColor="#111111"
+                            android:textSize="15sp" />
+
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -161,6 +162,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -200,12 +202,17 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:padding="30dp"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="20dp"
             android:text="This Ride is Not Available Now" />
 
 
@@ -213,8 +220,7 @@
             android:id="@+id/gobackBut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="30dp"
+            android:layout_gravity="center"
             android:gravity="center"
             android:text=" go Back" />
 
