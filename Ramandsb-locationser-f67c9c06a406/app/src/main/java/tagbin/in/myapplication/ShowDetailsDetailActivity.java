@@ -40,10 +40,11 @@ import tagbin.in.myapplication.Volley.AppController;
 
 public class ShowDetailsDetailActivity extends AppCompatActivity {
     String cab_no, time, pickup, user_id, status;
-    String url = Config.BASE_URL + "driver_journey_start/";
+    String url = Config.BASE_URL + "startTrip/";
     SharedPreferences SELECTEDRIDEDETAILS_sharedPreferences;
     SharedPreferences Logindetails_sharedPreferences;
     FloatingActionButton fab;
+    DatabaseOperations dop;
 
     public static boolean show=false;
 
@@ -61,6 +62,8 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         pickup = SELECTEDRIDEDETAILS_sharedPreferences.getString("pickup", "");
         user_id = SELECTEDRIDEDETAILS_sharedPreferences.getString("user_id", "");
         status = SELECTEDRIDEDETAILS_sharedPreferences.getString("status", "");
+        dop= new DatabaseOperations(this);
+
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -162,7 +165,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds cance to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_cancel, menu);
 
         return true;
@@ -240,6 +243,10 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                         Log.d("response", response.toString());
                         ShowDetailsDetailFragment.show=false;
                         ShowDetailsDetailFragment.arr_show=true;
+                        dop.deleteRow(dop,user_id);
+                        Intent i = new Intent(ShowDetailsDetailActivity.this,SeeUpcomingRides.class);
+                        startActivity(i);
+                        finish();
                     }
                 }, new Response.ErrorListener() {
 

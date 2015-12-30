@@ -107,7 +107,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     String usrname;
     LatLng start;
     String url = Config.BASE_URL+"logout/";
-   String jernydoneUrl= Config.BASE_URL+"driver_journey_end/";
+   String jernydoneUrl= Config.BASE_URL+"endTrip/";
     SharedPreferences sharedPreferences;
     SharedPreferences sha;
     AlertDialog alert;

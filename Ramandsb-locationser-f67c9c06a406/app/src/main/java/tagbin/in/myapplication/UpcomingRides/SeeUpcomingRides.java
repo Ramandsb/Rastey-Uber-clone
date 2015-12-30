@@ -12,6 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -67,13 +69,19 @@ public class SeeUpcomingRides extends AppCompatActivity {
                 String user_id = dataItems.getTo_loc();
                 String pickup = dataItems.getPick();
                 String status = dataItems.getStatus();
+                String dropadd= dataItems.getDropadress();
+                String phone=dataItems.getPhoneno();
+                String clientname=dataItems.getclientname();
                 SharedPreferences.Editor editor= sharedPreferences.edit();
                 editor.clear();
-                editor.putString("cab_no",cab_no);
+                editor.putString("cab_no", cab_no);
                 editor.putString("time",time);
                 editor.putString("user_id",user_id);
                 editor.putString("pickup",pickup);
                 editor.putString("status",status);
+                editor.putString("drop_address",dropadd);
+                editor.putString("phone",phone);
+                editor.putString("clientname",clientname);
                 editor.commit();
                 Intent intent = new Intent(SeeUpcomingRides.this, ShowDetailsDetailActivity.class);
                 startActivity(intent);
@@ -82,19 +90,19 @@ public class SeeUpcomingRides extends AppCompatActivity {
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setVisibility(View.GONE);
+        fab.setVisibility(View.GONE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 for (int i= 0;i<10;i++){
-                    dop.putInformation(dop,""+i,"Time :"+i+":"+i,""+i,"Gurgaon :"+i,""+i,"pending");
+                    dop.putInformation(dop,""+i,"Time :"+i+":"+i,""+i,"Gurgaon :"+i,""+i,"pending","drop","9120392903","");
                 }
                 databaselist= dop.readData(dop);
                 mAdapter.setData((ArrayList<DataItems>) databaselist, true);
             }
         });
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
-       // fab2.setVisibility(View.GONE);
+        fab2.setVisibility(View.GONE);
         fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -104,6 +112,27 @@ public class SeeUpcomingRides extends AppCompatActivity {
             }
         });
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            Intent i = new Intent(this,StartService.class);
+            startActivity(i);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

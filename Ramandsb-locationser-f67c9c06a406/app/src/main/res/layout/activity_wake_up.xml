@@ -9,6 +9,74 @@
     android:background="@drawable/background0">
 
 
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/detailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="117dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/mcab_no"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/mtime" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/mtime"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:layout_above="@+id/to"
+            android:layout_alignStart="@+id/to" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text=""
+            android:id="@+id/to"
+            android:textColor="#ffffff"
+            android:layout_above="@+id/from"
+            android:layout_alignStart="@+id/from" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:textColor="#ffffff"
+            android:id="@+id/from"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/Accept" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_below="@id/detailContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="60dp"
+        android:layout_alignParentEnd="true">
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/Reject"
@@ -17,9 +85,10 @@
         app:backgroundTint="#FF0011"
         android:elevation="20dp"
         app:borderWidth="0dp"
+        android:layout_marginRight="25dp"
         android:src="@drawable/close"
         android:layout_gravity="bottom|end"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="20dp"
         android:layout_alignTop="@+id/Accept"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -30,66 +99,14 @@
         android:layout_height="60dp"
         app:backgroundTint="#21D130"
         android:elevation="20dp"
-        app:borderWidth="0dp"
         android:src="@drawable/check"
-        android:layout_marginRight="50dp"
-        android:layout_gravity="bottom|end"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="71dp" />
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginEnd="72dp"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentEnd="true" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_below="@+id/textView8"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="117dp">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:text="New Text"
-        android:id="@+id/mcab_no"
-        android:gravity="center"
-        android:textColor="#ffffff"
-        android:layout_marginBottom="20dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/mtime" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/mtime"
-        android:gravity="center"
-        android:textColor="#ffffff"
-        android:layout_above="@+id/to"
-        android:layout_alignStart="@+id/to" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text=""
-        android:id="@+id/to"
-        android:textColor="#ffffff"
-        android:layout_above="@+id/from"
-        android:layout_alignStart="@+id/from" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:textColor="#ffffff"
-        android:id="@+id/from"
-        android:gravity="center"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/Accept" />
-    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -112,12 +129,11 @@
         android:layout_below="@+id/Reject"
         android:layout_alignEnd="@+id/Reject" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:id="@+id/textView8"
-        android:textColor="#eeeeee"
-         />
+    </RelativeLayout>
+
+
+    </LinearLayout>
+
+    </ScrollView>
 
 </RelativeLayout>

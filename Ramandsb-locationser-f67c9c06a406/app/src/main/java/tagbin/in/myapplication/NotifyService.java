@@ -66,7 +66,7 @@ public class NotifyService extends Service {
     public Location previousBestLocation = null;
     String Longitude, Latitude;
     //    String url="http://leanmenu.com/api/";
-    String url = Config.BASE_URL+"driver_position/";
+    String url = Config.BASE_URL+"location/";
 
     Intent intent;
     int counter = 0;

@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -46,16 +48,16 @@ public class ShowDetailsDetailFragment extends Fragment {
      * represents.
      *
      */
-    TextView cab ,tym,pick,to_loc;
+    TextView cab ,tym,pick,to_loc,client;
     public static boolean show=false;
     public static boolean arr_show=true;
     View status_bar;
     SharedPreferences sharedPreferences;
-    String cab_no,time,pickup,user_id,status;
+    String cab_no,time,pickup,user_id,status,dropadd,phone,clientname;
     View buttonsView;
     Button goback;
-    String url = Config.BASE_URL + "driver_job/";
-    String jrnyurl = Config.BASE_URL + "driver_journey_start/";
+    String url = Config.BASE_URL + "accept/";
+    String jrnyurl = Config.BASE_URL + "startTrip/";
     String arrivedUrl = Config.BASE_URL + "arrived/";
     String globalurl="";
     public static final String ARG_ITEM_ID = "item_id";
@@ -68,7 +70,7 @@ public class ShowDetailsDetailFragment extends Fragment {
 //    http://192.168.0.4:8001/api/v1/CreateUserResource/pending_job_status/
     DatabaseOperations dop;
     public static boolean arrBool=false;
-    String statusurl = Config.BASE_URL + "pending_job_status/";
+    String statusurl = Config.BASE_URL + "jobs/";
 
 
     public ShowDetailsDetailFragment() {
@@ -88,6 +90,9 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
          pickup=   sharedPreferences.getString("pickup","");
             user_id=sharedPreferences.getString("user_id","");
             status=sharedPreferences.getString("status","");
+            dropadd=sharedPreferences.getString("drop_address","");
+            phone=sharedPreferences.getString("phone","");
+            clientname=sharedPreferences.getString("clientname","");
             customDialog();
             Log.d("values",cab_no+"///"+time+"///"+user_id+"////"+status);
             showDialog();
@@ -108,6 +113,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
          tym= (TextView) rootView.findViewById(R.id.mtime);
          pick= (TextView) rootView.findViewById(R.id.mpick);
         to_loc= (TextView) rootView.findViewById(R.id.mto_location);
+        client= (TextView) rootView.findViewById(R.id.clientname);
         buttonsView= rootView.findViewById(R.id.buttons_view);
         goback = (Button) rootView.findViewById(R.id.gobackBut);
         avail=rootView.findViewById(R.id.available);
@@ -167,10 +173,20 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                 getActivity().finish();
             }
         });
-        cab.setText(status);
-        tym.setText(time);
-        pick.setText(pickup);
-        to_loc.setText(user_id);
+        client.setText("Client Name :"+clientname);
+        cab.setText("Drop Address :" + dropadd);
+        tym.setText("Pickup Time :"+time);
+        pick.setText("Pickup Address :"+pickup);
+        to_loc.setText(phone);
+        to_loc.setTextColor(Color.BLUE);
+        to_loc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:+" + to_loc.getText().toString().trim()));
+                startActivity(callIntent );
+            }
+        });
         if (status.equals("pending")){
             status_bar.setBackgroundColor(getResources().getColor(R.color.red));
             arrived_container.setVisibility(View.GONE);
@@ -224,6 +240,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             postParam.put("username", cab_no);
             postParam.put("success", string);
             postParam.put("user_id", user_id);
+            postParam.put("client_name", clientname);
             globalurl=url;
         }
         JSONObject jsonObject = new JSONObject(postParam);
@@ -243,6 +260,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                             starttrip.setVisibility(View.VISIBLE);
                             show=true;
                             arr_show=false;
+                            dismissDialog();
                             
                         }else {
                             buttonsView.setVisibility(View.GONE);
@@ -251,6 +269,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                                 progressBar.setVisibility(View.GONE);
                                 arrived_container.setVisibility(View.VISIBLE);
                                 cab.setText("Ride Accepted");
+                                dismissDialog();
 
                             } else {
                                 if (string.equals("false")) {
@@ -260,6 +279,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                                     Intent i = new Intent(getActivity(),SeeUpcomingRides.class);
                                     startActivity(i);
                                     getActivity().finish();
+                                    dismissDialog();
                                 }
                             }
                         }
@@ -368,6 +388,10 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             messageView.setText("ParseError");
         }
     }
+
+
+
+
     private void makeJsonObjReq() {
         SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
@@ -385,17 +409,16 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
-//                        try {
-//                            if (response.getString("success").equals("true")){
-//                                avail.setVisibility(View.VISIBLE);
-//                                buttonsView.setVisibility(View.GONE);
-//                                notAvail.setVisibility(View.GONE);
-//                            }else avail.setVisibility(View.GONE);
-//                            notAvail.setVisibility(View.VISIBLE);
-//                        }
-//                        catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
+                        try {
+                            if (response.getString("success").equals("false")){
+                                avail.setVisibility(View.GONE);
+                                notAvail.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                        catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         dismissDialog();
 
                     }
@@ -405,6 +428,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
                 Log.d("error", error.toString());
+                dismissDialog();
             }
         }) {
 
@@ -413,7 +437,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
                 headers.put( "charset", "utf-8");
-//                headers.put("Authorization",Auth_key);
+                headers.put("Authorization",Auth_key);
                 return headers;
             }
 

@@ -63,8 +63,8 @@ import tagbin.in.myapplication.Volley.MakeRequest;
 public class Registration extends AppCompatActivity {
     EditText name, mobno, cabno, password, conpass,car_name;
     String mName, mMobno, mCabno, mPass, mConpass,mCarName;
-    String url = Config.BASE_URL+"create_user/";
-    String urlSpinner = Config.BASE_URL+"get_cab/";
+    String url = Config.BASE_URL+"register/";
+    String urlSpinner = Config.BASE_URL+"getCars/";
     ////////////////////GCM WORKING/////////////////////////////////
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";

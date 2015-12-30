@@ -24,7 +24,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
     }
 
     public static final int database_version = 2;
-    public String CREATE_QUERY = "CREATE TABLE " + TableData.Tableinfo.TABLE_NAME + "(" + TableData.Tableinfo.CAB_NO + " TEXT," +TableData.Tableinfo.TIME + " TEXT,"+TableData.Tableinfo.USER_ID + " TEXT," + TableData.Tableinfo.PICKUP_LOCATION + " TEXT," +TableData.Tableinfo.TIMETOSTART+" TEXT,"+ TableData.Tableinfo.STATUS+" TEXT);";
+    public String CREATE_QUERY = "CREATE TABLE " + TableData.Tableinfo.TABLE_NAME + "(" + TableData.Tableinfo.CAB_NO + " TEXT," +TableData.Tableinfo.TIME + " TEXT,"+TableData.Tableinfo.USER_ID + " TEXT," + TableData.Tableinfo.PICKUP_LOCATION + " TEXT," +TableData.Tableinfo.TIMETOSTART+" TEXT,"+ TableData.Tableinfo.STATUS+" TEXT, "+ TableData.Tableinfo.DROPADDRESS+ " TEXT, "+ TableData.Tableinfo.PHONENO+ " TEXT, "+ TableData.Tableinfo.CLIENTNAME+" TEXT)";
     public String CREATE_LOC_QUERY = "CREATE TABLE " + TableData.Tableinfo.LOC_TABLE_NAME + "(" + TableData.Tableinfo.UNIQUE_ID + " TEXT," +TableData.Tableinfo.LAT + " TEXT,"+TableData.Tableinfo.LNG + " TEXT," + TableData.Tableinfo.TIMESTAMP + " TEXT);";
 
     @Override
@@ -41,7 +41,7 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void putInformation(DatabaseOperations dop, String cab_no, String time,String user_id,String pick,String timeto,String status)
+    public void putInformation(DatabaseOperations dop, String cab_no, String time,String user_id,String pick,String timeto,String status,String dropaddress,String phone,String clientname)
 
     {
         SQLiteDatabase SQ = dop.getWritableDatabase();
@@ -52,6 +52,9 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         cv.put(TableData.Tableinfo.TIMETOSTART, timeto);
         cv.put(TableData.Tableinfo.PICKUP_LOCATION, pick);
         cv.put(TableData.Tableinfo.STATUS, status);
+        cv.put(TableData.Tableinfo.DROPADDRESS, dropaddress);
+        cv.put(TableData.Tableinfo.PHONENO, phone);
+        cv.put(TableData.Tableinfo.CLIENTNAME, clientname);
         long k = SQ.insert(TableData.Tableinfo.TABLE_NAME, null, cv);
         Log.d("Database Created", "true");
 
@@ -105,6 +108,9 @@ public class DatabaseOperations extends SQLiteOpenHelper {
                 item.setPick(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.PICKUP_LOCATION)));
                 item.setTimetostart(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.TIMETOSTART)));
                 item.SetStatus(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.STATUS)));
+                item.setDropaddress(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.DROPADDRESS)));
+                item.setPhoneno(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.PHONENO)));
+                item.setclientname(cursor.getString(cursor.getColumnIndex(TableData.Tableinfo.CLIENTNAME)));
                 listData.add(item);
                 Log.d("Database read", "true");
             }

@@ -58,7 +58,7 @@ public class WakeUpAct extends Activity {
     KeyguardManager km;
     KeyguardManager.KeyguardLock kl;
     TextView cabtv, timetv, fromtv, totv;
-    String url = Config.BASE_URL + "driver_job/";
+    String url = Config.BASE_URL + "accept/";
     String username;
     TextView tvDialog;
     ProgressBar progressBar;
@@ -77,8 +77,9 @@ public class WakeUpAct extends Activity {
     int current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int;
 
      MediaPlayer mp;
-    String cab_no, user_id,from , pickup_time , pickup_address, pickup_houre , pickup_minuts,pickup_sec,current_houre ,current_minuts ,current_sec ;
+    String cab_no, user_id,from , pickup_time , pickup_address, pickup_houre , pickup_minuts,pickup_sec,current_houre ,current_minuts ,current_sec,clientname ;
 
+    String dropAddress,phoneno;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -123,12 +124,15 @@ public class WakeUpAct extends Activity {
                  current_minuts_int = Integer.parseInt(current_minuts);
                  current_sec = (String) jsonObject.get("current_sec");
                  current_sec_int = Integer.parseInt(current_sec);
+                dropAddress=jsonObject.getString("drop_address");
+                phoneno=jsonObject.getString("phone");
+                clientname=jsonObject.getString("client_name");
                 cabtv.setText(pickup_time);
                 timetv.setText(pickup_address);
                 fromtv.setText(pickup_address);
                 long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
                 String timinmilli=Long.toString(timeinmili);
-                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli,"pending");
+                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli,"pending",dropAddress,phoneno,clientname);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -251,6 +255,7 @@ public class WakeUpAct extends Activity {
         postParam.put("username", username);
         postParam.put("success", response);
         postParam.put("user_id", user_id);
+        postParam.put("client_name", clientname);
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
@@ -353,7 +358,7 @@ public class WakeUpAct extends Activity {
         builder.setContentText(content);
         builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
         builder.setContentIntent(resultPendingIntent);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setSmallIcon(R.drawable.tripaccepted);
         return builder.build();
     }
 
