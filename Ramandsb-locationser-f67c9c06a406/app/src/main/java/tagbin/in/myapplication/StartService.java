@@ -117,9 +117,9 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
    public static boolean visible = false;
     ActionBarDrawerToggle toggle;
     DrawerLayout drawer;
-    TextView navdraname;
+//    TextView navdraname;
      String Auth_key;
-    String uni="";
+//    String uni="";
 
 
 
@@ -270,14 +270,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
             Log.d("vals", intent.getExtras().getString("myLat") + "  " + intent.getExtras().getString("myLong"));
             DatabaseOperations dop = new DatabaseOperations(StartService.this);
-            Long tsLong = System.currentTimeMillis()/1000;
-            if (uni.equals("")){
-                uni=tsLong.toString();
-            }else {
-                uni=uni;
-            }
-            String ts = tsLong.toString();
-            dop.putLatLong(dop,usrname+uni,mylat.toString(),mylong.toString(),ts);
+//            Long tsLong = System.currentTimeMillis()/1000;
+//            if (uni.equals("")){
+//                uni=tsLong.toString();
+//            }else {
+//                uni=uni;
+//            }
+////            String ts = tsLong.toString();
+        Log.d("LocationCount is : ", dop.getlatlngCount());
 
              latLng = new LatLng(mylat, mylong);
             latlong.add(latLng);
@@ -531,8 +531,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         finish();
                         Intent i = getIntent();
                         startActivity(i);
-
-
+                        NotifyService.putLatln=false;
                     }
                 }, new Response.ErrorListener() {
 

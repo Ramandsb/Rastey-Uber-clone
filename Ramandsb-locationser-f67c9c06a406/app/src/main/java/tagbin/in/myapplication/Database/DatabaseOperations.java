@@ -115,6 +115,9 @@ public class DatabaseOperations extends SQLiteOpenHelper {
                 Log.d("Database read", "true");
             }
             while (cursor.moveToNext());
+
+                cursor.close();
+
         }
         return listData;
     }
@@ -136,6 +139,15 @@ public class DatabaseOperations extends SQLiteOpenHelper {
 
     public String  getProfilesCount() {
         String countQuery = "SELECT  * FROM " + TableData.Tableinfo.TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        String count = Integer.toString(cnt);
+        return count;
+    }
+    public String  getlatlngCount() {
+        String countQuery = "SELECT  * FROM " + TableData.Tableinfo.LOC_TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         int cnt = cursor.getCount();

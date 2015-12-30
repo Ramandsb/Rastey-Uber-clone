@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Volley.AppController;
 import tagbin.in.myapplication.Volley.CustomRequest;
@@ -50,6 +51,9 @@ public class NotifyService extends Service {
     String macAddress;
     SharedPreferences sharedPreferences;
    static boolean request=false;
+    DatabaseOperations dop;
+    String uni="";
+    public static Boolean putLatln=false;
 
 
 //    NotifyServiceReceiver notifyServiceReceiver;
@@ -78,6 +82,7 @@ public class NotifyService extends Service {
         super.onCreate();
         intent = new Intent(BROADCAST_ACTION);
         sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        dop= new DatabaseOperations(this);
     }
 
 
@@ -215,6 +220,16 @@ public class NotifyService extends Service {
                 sendBroadcast(i);
                 SharedPreferences sharedPref = getApplication().getSharedPreferences(LoginActivity.LOGINDETAILS,MODE_PRIVATE);
                String user=sharedPref.getString("username", "");
+                if (putLatln) {
+                    Long tsLong = System.currentTimeMillis() / 1000;
+                    if (uni.equals("")) {
+                        uni = tsLong.toString();
+                    } else {
+                        uni = uni;
+                    }
+                    String ts = tsLong.toString();
+                    dop.putLatLong(dop, user + uni, latiString, longiString, ts);
+                }
 //                String Auth_key=sharedPref.getString("auth_key","");
 //                if (Auth_key.equals("")) {
 //                   Log.d("Auth key","Invalid");

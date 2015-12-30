@@ -33,6 +33,7 @@
             android:id="@+id/mcab_no"
             android:gravity="center"
             android:textColor="#ffffff"
+            android:textSize="20sp"
             android:layout_marginBottom="20dp"
             android:layout_alignParentTop="true"
             android:layout_alignStart="@+id/mtime" />
@@ -40,9 +41,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
             android:id="@+id/mtime"
+            android:textSize="20sp"
             android:gravity="center"
             android:textColor="#ffffff"
             android:layout_above="@+id/to"
@@ -61,8 +62,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
+            android:textSize="20sp"
             android:textColor="#ffffff"
             android:id="@+id/from"
             android:gravity="center"

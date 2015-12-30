@@ -94,9 +94,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             phone=sharedPreferences.getString("phone","");
             clientname=sharedPreferences.getString("clientname","");
             customDialog();
-            Log.d("values",cab_no+"///"+time+"///"+user_id+"////"+status);
-            showDialog();
-            makeJsonObjReq();
+            Log.d("values", cab_no + "///" + time + "///" + user_id + "////" + status);
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle("Click to Start Journey");
@@ -188,6 +186,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             }
         });
         if (status.equals("pending")){
+            makeJsonObjReq();
             status_bar.setBackgroundColor(getResources().getColor(R.color.red));
             arrived_container.setVisibility(View.GONE);
         }else if (status.equals("accept")){
@@ -338,6 +337,7 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                         starttrip.setVisibility(View.GONE);
                         show=false;
                         dop.putStatus(dop,"Trip Started",user_id);
+                        NotifyService.putLatln=true;
                         Intent i = new Intent(getActivity(), StartService.class);
                         startActivity(i);
                         getActivity().finish();
