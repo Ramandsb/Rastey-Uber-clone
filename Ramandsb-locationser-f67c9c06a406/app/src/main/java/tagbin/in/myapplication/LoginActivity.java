@@ -171,6 +171,8 @@ public class LoginActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("username", username);
                             editor.putString("auth_key",key);
+                            editor.putString("started","false");
+                            editor.putString("arrived","false");
                                 editor.commit();
                                Log.d("sharedPreferences", sharedPreferences.getAll().toString());
                             Intent i = new Intent(LoginActivity.this,StartService.class);

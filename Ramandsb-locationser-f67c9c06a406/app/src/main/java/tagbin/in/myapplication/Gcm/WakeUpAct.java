@@ -7,8 +7,10 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -48,6 +50,7 @@ import tagbin.in.myapplication.Database.DatabaseOperations;
 import tagbin.in.myapplication.LoginActivity;
 import tagbin.in.myapplication.NotificationPublisher;
 import tagbin.in.myapplication.R;
+import tagbin.in.myapplication.Registration;
 import tagbin.in.myapplication.StartService;
 import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
@@ -96,6 +99,7 @@ public class WakeUpAct extends Activity {
         ridestatusShared =getSharedPreferences(RIDESTATUS,MODE_PRIVATE);
         dop = new DatabaseOperations(this);
         tvDialog = (TextView) findViewById(R.id.tvdialog);
+        registerReceiver(logout, new IntentFilter("logout"));
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String value = extras.getString("message");
@@ -248,6 +252,13 @@ public class WakeUpAct extends Activity {
         wl.acquire();//must call this!
     }
 
+
+    private final BroadcastReceiver logout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    };
     private void makeJsonObjReq(String response) {
         SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
@@ -268,7 +279,13 @@ public class WakeUpAct extends Activity {
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
+
                         try {
+
+                            String message=  response.getString("message");
+                            if (message.equals("Unauthorized")){
+                               logoutRequest();
+                            }
 
 
                             if (response.getString("success").equals("true")) {
@@ -326,6 +343,85 @@ public class WakeUpAct extends Activity {
 
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+    public void logoutRequest() {
+
+
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        final String k=sharedPreferences.getString("key", "");
+        final String cab_no=sharedPreferences.getString("username", "");
+//        final String apikey=u+":"+k;
+//        Log.d("shkey",apikey);
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+
+        Map<String, String> postParam= new HashMap<String, String>();
+        postParam.put("cab_no",cab_no);
+        postParam.put("logout", "yes");
+        JSONObject jsonObject = new JSONObject(postParam);
+        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                StartService.Logout_url,jsonObject,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d("response", response.toString());
+//
+
+                        Intent dialogIntent = new Intent(WakeUpAct.this, LoginActivity.class);
+                        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dialogIntent);
+                        clearAllPrefs();
+                        finish();
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+
+
+                Log.d("error", error.toString());
+            }
+        }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
+                return headers;
+            }
+
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+    public void clearAllPrefs(){
+        final SharedPreferences prefs = getSharedPreferences(
+                Registration.STOREGCMID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.commit();
+        SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor= loginDetails.edit();
+        lEditor.clear();
+        lEditor.commit();
+
     }
 
     private void scheduleNotification(Notification notification, long triggertime) {

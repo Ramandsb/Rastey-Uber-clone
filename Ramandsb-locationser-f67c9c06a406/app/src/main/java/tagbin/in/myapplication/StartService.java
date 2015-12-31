@@ -78,6 +78,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -106,9 +107,10 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     Marker marker;
     String usrname;
     LatLng start;
-    String url = Config.BASE_URL+"logout/";
+    public  static String Logout_url = Config.BASE_URL+"logout/";
    String jernydoneUrl= Config.BASE_URL+"endTrip/";
     SharedPreferences sharedPreferences;
+    SharedPreferences  login_shared;
     SharedPreferences sha;
     AlertDialog alert;
     TextView messageView;
@@ -119,6 +121,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     DrawerLayout drawer;
 //    TextView navdraname;
      String Auth_key;
+    String showEndTrip;
 //    String uni="";
 
 
@@ -132,17 +135,21 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         registerReceiver(uiUpdated, new IntentFilter("LOCATION_UPDATED"));
+        registerReceiver(logout, new IntentFilter("logout"));
         setUpMapIfNeeded();
         Intent intent = new Intent(StartService.this, NotifyService.class);
         StartService.this.startService(intent);
         customDialog();
+
          drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
          toggle = new ActionBarDrawerToggle(
                 this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        usrname=sharedPreferences.getString("username","");
+          login_shared = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        usrname=login_shared.getString("username","");
+        showEndTrip=login_shared.getString("started","false");
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 //        navdraname= (TextView) findViewById(R.id.navdraname);
@@ -157,9 +164,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
             }
         });
-        if (visible){
+//        if (visible){
+//            journey.setVisibility(View.VISIBLE);
+//        }else journey.setVisibility(View.INVISIBLE);
+        if (showEndTrip.equals("false")){
+            journey.setVisibility(View.INVISIBLE);
+        }else if (showEndTrip.equals("true")){
             journey.setVisibility(View.VISIBLE);
-        }else journey.setVisibility(View.INVISIBLE);
+        }
 
     }
 
@@ -374,7 +386,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     @Override
     protected void onResume() {
         super.onResume();
-    }
+        registerReceiver(logout, new IntentFilter("logout"));    }
 
 
    public void logoutdialog(){
@@ -392,7 +404,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         showDialog();
-                        makeJsonObjReq();
+                        logoutRequest();
                         dialog.cancel();
                     }
                 })
@@ -411,11 +423,10 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         alertDialog.show();
 
 }
-    private void makeJsonObjReq() {
+    public void logoutRequest() {
 
 
         SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
         final String k=sharedPreferences.getString("key", "");
         final String cab_no=sharedPreferences.getString("username", "");
 //        final String apikey=u+":"+k;
@@ -431,13 +442,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                url,jsonObject,
+                Logout_url,jsonObject,
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
+
                         dismissDialog();
                         clearAllPrefs();
                         stopservice();
@@ -490,24 +502,35 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
 
+    private final BroadcastReceiver logout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    };
 
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(logout);
     }
 
     private void makeJsonObjReq(String s) {
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
+      String  phone=sha.getString("phone","");
+      String  clientname=sha.getString("clientname", "");
      final String user_id=   sha.getString("user_id", "");
      String   cab_no= sha.getString("cab_no", "");
-        final String k=sharedPreferences.getString("key", "");
-        final String Auth_key="ApiKey "+s+":"+k;
+        String user=  sharedPreferences.getString("username", "");
+        final String Auth_key="ApiKey "+user+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id",user_id);
         postParam.put("username", cab_no);
         postParam.put("lat", mylat.toString());
         postParam.put("lng", mylong.toString());
+        postParam.put("client_name", clientname);
+        postParam.put("phone",phone);
         postParam.put("trip", "End");
 
         JSONObject jsonObject = new JSONObject(postParam);
@@ -521,17 +544,33 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("response", response.toString());
+                        String message= null;
+                        try {
+                            message = response.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (message.equals("Unauthorized")){
+                            logoutRequest();
+                        }
                         progressBar.setVisibility(View.GONE);
                         messageView.setText("Job Finished");
-                        visible=false;
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("started", "false");
+                        editor.commit();
+                        SharedPreferences.Editor login = login_shared.edit();
+                        login.putString("arrived", "false");
+                        login.commit();
+//                        visible=false;
                         ShowDetailsDetailFragment.show=false;
-                        ShowDetailsDetailFragment.arr_show=true;
+//                        ShowDetailsDetailFragment.arr_show=true;
                          dop= new DatabaseOperations(StartService.this);
                         dop.deleteRow(dop,user_id);
                         finish();
                         Intent i = getIntent();
                         startActivity(i);
                         NotifyService.putLatln=false;
+
                     }
                 }, new Response.ErrorListener() {
 

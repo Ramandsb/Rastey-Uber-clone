@@ -27,6 +27,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.glomadrian.loadingballs.factory.path.Star;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -274,7 +275,7 @@ public class NotifyService extends Service {
 
 
     private void makeJsonObjReq(final String lati,final String longi) {
-      String cab_no=  sharedPreferences.getString("username","");
+      String cab_no=  sharedPreferences.getString("username", "");
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam= new HashMap<String, String>();
         postParam.put("cab_no", cab_no);
@@ -294,6 +295,19 @@ public class NotifyService extends Service {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("response", response.toString());
+//                        {"message":"Unauthorized","success":false}
+                        try {
+                          String message=  response.getString("message");
+                            if (message.equals("Unauthorized")){
+
+logoutRequest();
+
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
 
                     }
@@ -317,7 +331,6 @@ public class NotifyService extends Service {
             }
 
 
-
         };
 
         // Adding request to request queue
@@ -327,5 +340,107 @@ public class NotifyService extends Service {
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
 
+    public void logoutRequest() {
 
+
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        final String k=sharedPreferences.getString("key", "");
+        final String cab_no=sharedPreferences.getString("username", "");
+//        final String apikey=u+":"+k;
+//        Log.d("shkey",apikey);
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+
+        Map<String, String> postParam= new HashMap<String, String>();
+        postParam.put("cab_no",cab_no);
+        postParam.put("logout", "yes");
+        JSONObject jsonObject = new JSONObject(postParam);
+        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                url,jsonObject,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d("response", response.toString());
+//                        String message= null;
+//                        try {
+//                            message = response.getString("message");
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                        if (message.equals("Unauthorized")){
+//                            StartService obj= new StartService();
+//                            obj.logoutRequest();
+//                        }
+
+                        Intent dialogIntent = new Intent(NotifyService.this, LoginActivity.class);
+                        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dialogIntent);
+                        clearAllPrefs();
+                        sendBroadcast(new Intent("logout"));
+                        request=false;
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+
+
+                Log.d("error", error.toString());
+            }
+        }) {
+
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                HashMap<String, String> headers = new HashMap<String, String>();
+//                return headers;
+//            }
+//            @Override
+//            public Map<String, String> getParams() {
+//                HashMap<String, String> params = new HashMap<String, String>();
+//                params.put("key",k);
+//
+//                return params;
+//            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put( "charset", "utf-8");
+                headers.put("Authorization",Auth_key);
+                return headers;
+            }
+
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+    public void clearAllPrefs(){
+        final SharedPreferences prefs = getSharedPreferences(
+                Registration.STOREGCMID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.commit();
+        SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor= loginDetails.edit();
+        lEditor.clear();
+        lEditor.commit();
+
+    }
 }

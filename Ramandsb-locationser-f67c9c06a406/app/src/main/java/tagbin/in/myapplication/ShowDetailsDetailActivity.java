@@ -1,9 +1,11 @@
 package tagbin.in.myapplication;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -40,15 +42,16 @@ import tagbin.in.myapplication.Volley.AppController;
 
 public class ShowDetailsDetailActivity extends AppCompatActivity {
     String cab_no, time, pickup, user_id, status;
-   // String url = Config.BASE_URL + "startTrip/";
+    // String url = Config.BASE_URL + "startTrip/";
     SharedPreferences SELECTEDRIDEDETAILS_sharedPreferences;
     SharedPreferences Logindetails_sharedPreferences;
     FloatingActionButton fab;
     DatabaseOperations dop;
 
-    public static boolean show=false;
+    public static boolean show = false;
 
-    String jernydoneUrl= Config.BASE_URL+"cancel/";
+    String jernydoneUrl = Config.BASE_URL + "cancel/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,14 +59,13 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
         SELECTEDRIDEDETAILS_sharedPreferences = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-        Logindetails_sharedPreferences=getSharedPreferences(LoginActivity.LOGINDETAILS,Context.MODE_PRIVATE);
+        Logindetails_sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         cab_no = SELECTEDRIDEDETAILS_sharedPreferences.getString("cab_no", "");
         time = SELECTEDRIDEDETAILS_sharedPreferences.getString("time", "");
         pickup = SELECTEDRIDEDETAILS_sharedPreferences.getString("pickup", "");
         user_id = SELECTEDRIDEDETAILS_sharedPreferences.getString("user_id", "");
         status = SELECTEDRIDEDETAILS_sharedPreferences.getString("status", "");
-        dop= new DatabaseOperations(this);
-
+        dop = new DatabaseOperations(this);
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -99,66 +101,21 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
-//    private void makeJsonObjReq() {
-//
-//
-//        final String Auth_key = "ApiKey " + cab_no + ":" + Logindetails_sharedPreferences.getString("key", "");
-//        Map<String, String> postParam = new HashMap<String, String>();
-//        postParam.put("user_id", user_id);
-//        postParam.put("username", cab_no);
-//        postParam.put("lat", StartService.mylat.toString());
-//        postParam.put("lng", StartService.mylong.toString());
-//        postParam.put("trip", "Started");
-//
-//
-//        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-//                url, new JSONObject(postParam),
-//                new Response.Listener<JSONObject>() {
-//
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        show=false;
-//                        StartService.visible = true;
-////                        ShowDetailsDetailFragment.arrived_container.setVisibility(View.VISIBLE);
-////                        ShowDetailsDetailFragment.arrBool=true;
-//                        Intent i = new Intent(ShowDetailsDetailActivity.this, StartService.class);
-//                        startActivity(i);
-//                        finish();
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                VolleyLog.d("error", "Error: " + error.getMessage());
-//                Log.d("error", error.toString());
-//            }
-//        }) {
-//
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                HashMap<String, String> headers = new HashMap<String, String>();
-//                headers.put("Content-Type", "application/json");
-//                headers.put("charset", "utf-8");
-//                headers.put("Authorization", Auth_key);
-//                return headers;
-//            }
-//
-//
-//        };
-//
-//        // Adding request to request queue
-//        AppController.getInstance().addToRequestQueue(jsonObjReq);
-//
-//        // Cancelling request
-//        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
-//    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent i = new Intent(this,SeeUpcomingRides.class);
+        Intent i = new Intent(this, SeeUpcomingRides.class);
         startActivity(i);
         finish();
     }
@@ -175,17 +132,18 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            Intent i = new Intent(this,SeeUpcomingRides.class);
+            Intent i = new Intent(this, SeeUpcomingRides.class);
             startActivity(i);
             finish();
             return true;
-        }else if (id == R.id.mnu_cancel){
+        } else if (id == R.id.mnu_cancel) {
             cancelRide();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-    public void cancelRide(){
+
+    public void cancelRide() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
 
@@ -218,16 +176,19 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         alertDialog.show();
 
     }
+
     private void makeJsonObjReq(String s) {
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-      SharedPreferences  sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-        final String user_id=   sha.getString("user_id", "");
-        String   cab_no= sha.getString("cab_no", "");
-        final String k=sharedPreferences.getString("key", "");
-        final String Auth_key="ApiKey "+cab_no+":"+k;
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
+        final String user_id = sha.getString("user_id", "");
+        String cab_no = sha.getString("cab_no", "");
+      String  time=  sha.getString("time","");
+        final String k = sharedPreferences.getString("key", "");
+        final String Auth_key = "ApiKey " + cab_no + ":" + k;
         Map<String, String> postParam = new HashMap<String, String>();
-        postParam.put("user_id",user_id);
+        postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
+        postParam.put("time", time);
         postParam.put("trip", "cancel");
 
         JSONObject jsonObject = new JSONObject(postParam);
@@ -241,10 +202,19 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("response", response.toString());
-                        ShowDetailsDetailFragment.show=false;
-                        ShowDetailsDetailFragment.arr_show=true;
-                        dop.deleteRow(dop,user_id);
-                        Intent i = new Intent(ShowDetailsDetailActivity.this,SeeUpcomingRides.class);
+                        String message = null;
+                        try {
+                            message = response.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (message.equals("Unauthorized")) {
+                            logoutRequest();
+                        }
+                        ShowDetailsDetailFragment.show = false;
+                        ShowDetailsDetailFragment.arr_show = true;
+                        dop.deleteRow(dop, user_id);
+                        Intent i = new Intent(ShowDetailsDetailActivity.this, SeeUpcomingRides.class);
                         startActivity(i);
                         finish();
                     }
@@ -253,6 +223,72 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
+
+                Log.d("error", error.toString());
+            }
+        }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
+                return headers;
+            }
+
+
+        };
+
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+    }
+
+
+    public void logoutRequest() {
+
+
+        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        final String k=sharedPreferences.getString("key", "");
+        final String cab_no=sharedPreferences.getString("username", "");
+//        final String apikey=u+":"+k;
+//        Log.d("shkey",apikey);
+        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+
+        Map<String, String> postParam= new HashMap<String, String>();
+        postParam.put("cab_no",cab_no);
+        postParam.put("logout", "yes");
+        JSONObject jsonObject = new JSONObject(postParam);
+        Log.d("postpar", jsonObject.toString());
+
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                StartService.Logout_url,jsonObject,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d("response", response.toString());
+//
+
+                        Intent dialogIntent = new Intent(ShowDetailsDetailActivity.this, LoginActivity.class);
+                        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dialogIntent);
+                        clearAllPrefs();
+                        finish();
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+
 
                 Log.d("error", error.toString());
             }
@@ -272,10 +308,23 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
 
         };
 
-
-
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+        // Cancelling request
+        // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
+    }
+    public void clearAllPrefs(){
+        final SharedPreferences prefs = getSharedPreferences(
+                Registration.STOREGCMID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.commit();
+        SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor= loginDetails.edit();
+        lEditor.clear();
+        lEditor.commit();
+
     }
 
 }
