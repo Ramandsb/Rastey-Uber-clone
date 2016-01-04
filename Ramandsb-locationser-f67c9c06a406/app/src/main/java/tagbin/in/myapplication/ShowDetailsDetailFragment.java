@@ -43,33 +43,29 @@ import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
 
 public class ShowDetailsDetailFragment extends Fragment {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     *
-     */
-    TextView cab ,tym,pick,to_loc,client;
-    public static boolean show=false;
-    public static boolean arr_show=true;
+
+    TextView cab, tym, pick, to_loc, client;
+    public static boolean show = false;
+    public static boolean arr_show = true;
     View status_bar;
     SharedPreferences sharedPreferences;
-    String cab_no,time,pickup,user_id,status,dropadd,phone,clientname;
+    String cab_no, time, pickup, user_id, status, dropadd, phone, clientname;
     View buttonsView;
     Button goback;
-    SharedPreferences  login_shared;
+    SharedPreferences login_shared;
     String url = Config.BASE_URL + "accept/";
     String jrnyurl = Config.BASE_URL + "startTrip/";
     String arrivedUrl = Config.BASE_URL + "arrived/";
-    String globalurl="";
+    String globalurl = "";
     public static final String ARG_ITEM_ID = "item_id";
-    View  avail,notAvail;
+    View avail, notAvail;
     TextView messageView;
     ProgressBar progressBar;
     AlertDialog alert;
-    Button starttrip,arrived;
-    public  static View arrived_container;
+    Button starttrip, arrived;
+    public static View arrived_container;
     DatabaseOperations dop;
-    public static boolean arrBool=false;
+    public static boolean arrBool = false;
     String statusurl = Config.BASE_URL + "jobs/";
 
 
@@ -84,17 +80,17 @@ public class ShowDetailsDetailFragment extends Fragment {
 
 
             Activity activity = this.getActivity();
-sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-              login_shared = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+            sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
+            login_shared = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
             login_shared.getString("arrived", "false");
-           cab_no= sharedPreferences.getString("cab_no", "");
-          time=  sharedPreferences.getString("time","");
-         pickup=   sharedPreferences.getString("pickup","");
-            user_id=sharedPreferences.getString("user_id","");
-            status=sharedPreferences.getString("status","");
-            dropadd=sharedPreferences.getString("drop_address","");
-            phone=sharedPreferences.getString("phone","");
-            clientname=sharedPreferences.getString("clientname","");
+            cab_no = sharedPreferences.getString("cab_no", "");
+            time = sharedPreferences.getString("time", "");
+            pickup = sharedPreferences.getString("pickup", "");
+            user_id = sharedPreferences.getString("user_id", "");
+            status = sharedPreferences.getString("status", "");
+            dropadd = sharedPreferences.getString("drop_address", "");
+            phone = sharedPreferences.getString("phone", "");
+            clientname = sharedPreferences.getString("clientname", "");
             customDialog();
             Log.d("values", cab_no + "///" + time + "///" + user_id + "////" + status);
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
@@ -103,27 +99,28 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             }
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.showdetails_detail, container, false);
 
-        status_bar=rootView.findViewById(R.id.status_bar);
-         cab= (TextView) rootView.findViewById(R.id.mcab_no);
-         tym= (TextView) rootView.findViewById(R.id.mtime);
-         pick= (TextView) rootView.findViewById(R.id.mpick);
-        to_loc= (TextView) rootView.findViewById(R.id.mto_location);
-        client= (TextView) rootView.findViewById(R.id.clientname);
-        buttonsView= rootView.findViewById(R.id.buttons_view);
+        status_bar = rootView.findViewById(R.id.status_bar);
+        cab = (TextView) rootView.findViewById(R.id.mcab_no);
+        tym = (TextView) rootView.findViewById(R.id.mtime);
+        pick = (TextView) rootView.findViewById(R.id.mpick);
+        to_loc = (TextView) rootView.findViewById(R.id.mto_location);
+        client = (TextView) rootView.findViewById(R.id.clientname);
+        buttonsView = rootView.findViewById(R.id.buttons_view);
         goback = (Button) rootView.findViewById(R.id.gobackBut);
-        avail=rootView.findViewById(R.id.available);
-        notAvail=rootView.findViewById(R.id.notAvailcontainer);
-        arrived_container= rootView.findViewById(R.id.arrived_container);
+        avail = rootView.findViewById(R.id.available);
+        notAvail = rootView.findViewById(R.id.notAvailcontainer);
+        arrived_container = rootView.findViewById(R.id.arrived_container);
         FloatingActionButton accept = (FloatingActionButton) rootView.findViewById(R.id.Accept);
         FloatingActionButton reject = (FloatingActionButton) rootView.findViewById(R.id.Reject);
-         starttrip= (Button) rootView.findViewById(R.id.starttrip);
-         arrived = (Button) rootView.findViewById(R.id.arrived);
-         dop = new DatabaseOperations(getActivity());
+        starttrip = (Button) rootView.findViewById(R.id.starttrip);
+        arrived = (Button) rootView.findViewById(R.id.arrived);
+        dop = new DatabaseOperations(getActivity());
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,9 +167,9 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                 getActivity().finish();
             }
         });
-        client.setText("Client Name :"+clientname);
+        client.setText("Client Name :" + clientname);
         cab.setText("Drop Address :" + dropadd);
-        tym.setText("Pickup Time :"+time);
+        tym.setText("Pickup Time :" + time);
         pick.setText("Pickup Address :" + pickup);
         to_loc.setText(phone);
         to_loc.setTextColor(Color.BLUE);
@@ -181,68 +178,70 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             public void onClick(View v) {
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:+" + to_loc.getText().toString().trim()));
-                startActivity(callIntent );
+                startActivity(callIntent);
             }
         });
-        if (status.equals("pending")){
+        if (status.equals("pending")) {
             makeJsonObjReq();
             status_bar.setBackgroundColor(getResources().getColor(R.color.red));
             arrived_container.setVisibility(View.GONE);
-        }else if (status.equals("accept")){
+        } else if (status.equals("accept")) {
             buttonsView.setVisibility(View.GONE);
             notAvail.setVisibility(View.GONE);
             arrived_container.setVisibility(View.VISIBLE);
             status_bar.setBackgroundColor(getResources().getColor(R.color.green));
-        }else if (status.equals("Trip Started")){
+        } else if (status.equals("Trip Started")) {
             buttonsView.setVisibility(View.GONE);
             notAvail.setVisibility(View.GONE);
             arrived_container.setVisibility(View.VISIBLE);
             status_bar.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         }
-        if (show){
+        if (show) {
             starttrip.setVisibility(View.VISIBLE);
-        }else starttrip.setVisibility(View.GONE);
-        if (arr_show){
+        } else starttrip.setVisibility(View.GONE);
+        if (arr_show) {
             arrived.setVisibility(View.VISIBLE);
-        }else arrived.setVisibility(View.GONE);
+        } else arrived.setVisibility(View.GONE);
         return rootView;
     }
-    public void customDialog()
-    {
+
+    public void customDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View customView = inflater.inflate(R.layout.dialog, null);
         builder.setView(customView);
-        messageView = (TextView)customView.findViewById(R.id.tvdialog);
-        progressBar= (ProgressBar) customView.findViewById(R.id.progress);
+        messageView = (TextView) customView.findViewById(R.id.tvdialog);
+        progressBar = (ProgressBar) customView.findViewById(R.id.progress);
         alert = builder.create();
 
     }
 
-    public void showDialog(){
+    public void showDialog() {
 
         alert.show();
     }
-    public void dismissDialog(){
+
+    public void dismissDialog() {
         alert.dismiss();
     }
+
     private void makeJsonObjReq(final String string) {
-        SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        String caby= sharedPreferences.getString("username","");
-        final String Auth_key="ApiKey "+caby+":"+sharedPreferences.getString("auth_key","");
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        String caby = sharedPreferences.getString("username", "");
+        final String Auth_key = "ApiKey " + caby + ":" + sharedPreferences.getString("auth_key", "");
         Map<String, String> postParam = new HashMap<String, String>();
-        if (string.equals("arrived")){
+        if (string.equals("arrived")) {
             postParam.put("user_id", user_id);
-            postParam.put("arrived","true");
+            postParam.put("arrived", "true");
             postParam.put("client_name", clientname);
-            postParam.put("phone",phone);
-            globalurl=arrivedUrl;
-        }else {
+            postParam.put("phone", phone);
+            globalurl = arrivedUrl;
+        } else {
             postParam.put("username", cab_no);
             postParam.put("success", string);
             postParam.put("user_id", user_id);
             postParam.put("client_name", clientname);
-            globalurl=url;
+            globalurl = url;
         }
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
@@ -255,24 +254,24 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("response", response.toString());
-                        String message= null;
+                        String message = null;
                         try {
                             message = response.getString("message");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        if (message.equals("Unauthorized")){
+                        if (message.equals("Unauthorized")) {
                             logoutRequest();
 
                         }
-                        if (string.equals("arrived")){
+                        if (string.equals("arrived")) {
                             arrived.setVisibility(View.GONE);
                             starttrip.setVisibility(View.VISIBLE);
-                            show=true;
-                            arr_show=false;
+                            show = true;
+                            arr_show = false;
                             dismissDialog();
-                            
-                        }else {
+
+                        } else {
                             buttonsView.setVisibility(View.GONE);
                             if (string.equals("true")) {
                                 messageView.setText("Ride Accepted");
@@ -286,16 +285,13 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                                     messageView.setText("Ride Rejected");
                                     progressBar.setVisibility(View.GONE);
                                     cab.setText("Ride Rejected");
-                                    Intent i = new Intent(getActivity(),SeeUpcomingRides.class);
+                                    Intent i = new Intent(getActivity(), SeeUpcomingRides.class);
                                     startActivity(i);
                                     getActivity().finish();
                                     dismissDialog();
                                 }
                             }
                         }
-
-
-
 
 
                     }
@@ -313,11 +309,10 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
-
 
 
         };
@@ -327,25 +322,25 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
 
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
-    }  public void logoutRequest() {
+    }
 
+    public void logoutRequest() {
 
 
         SharedPreferences.Editor editor = login_shared.edit();
-        final String k=login_shared.getString("key", "");
-        final String cab_no=login_shared.getString("username", "");
-        final String Auth_key="ApiKey "+cab_no+":"+login_shared.getString("auth_key","");
+        final String k = login_shared.getString("key", "");
+        final String cab_no = login_shared.getString("username", "");
+        final String Auth_key = "ApiKey " + cab_no + ":" + login_shared.getString("auth_key", "");
 
-        Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("cab_no",cab_no);
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("cab_no", cab_no);
         postParam.put("logout", "yes");
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
 
-
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                StartService.Logout_url,jsonObject,
+                StartService.Logout_url, jsonObject,
                 new Response.Listener<JSONObject>() {
 
                     @Override
@@ -377,11 +372,10 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
-
 
 
         };
@@ -392,21 +386,23 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
-    public void clearAllPrefs(){
+
+    public void clearAllPrefs() {
         final SharedPreferences prefs = getActivity().getSharedPreferences(
                 Registration.STOREGCMID, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
         editor.commit();
-        SharedPreferences  loginDetails = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor lEditor= loginDetails.edit();
+        SharedPreferences loginDetails = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor = loginDetails.edit();
         lEditor.clear();
         lEditor.commit();
 
     }
+
     private void tripstartRequest() {
-        final SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final String Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("auth_key", "");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
@@ -422,12 +418,12 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     public void onResponse(JSONObject response) {
                         StartService.visible = true;
                         starttrip.setVisibility(View.GONE);
-                        show=false;
-                        SharedPreferences.Editor editor= sharedPreferences.edit();
+                        show = false;
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("started", "true");
                         editor.commit();
                         dop.putStatus(dop, "Trip Started", user_id);
-                        NotifyService.putLatln=true;
+                        NotifyService.putLatln = true;
                         Intent i = new Intent(getActivity(), StartService.class);
                         startActivity(i);
                         getActivity().finish();
@@ -480,11 +476,9 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
     }
 
 
-
-
     private void makeJsonObjReq() {
-        SharedPreferences  sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final String Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("auth_key", "");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id", user_id);
         JSONObject jsonObject = new JSONObject(postParam);
@@ -499,23 +493,22 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
                     public void onResponse(JSONObject response) {
 
                         Log.d("response", response.toString());
-                        String message= null;
+                        String message = null;
                         try {
                             message = response.getString("message");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        if (message.equals("Unauthorized")){
+                        if (message.equals("Unauthorized")) {
                             logoutRequest();
                         }
                         try {
-                            if (response.getString("success").equals("false")){
+                            if (response.getString("success").equals("false")) {
                                 avail.setVisibility(View.GONE);
                                 notAvail.setVisibility(View.VISIBLE);
                             }
 
-                        }
-                        catch (JSONException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         dismissDialog();
@@ -535,11 +528,10 @@ sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTED
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
-
 
 
         };

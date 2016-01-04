@@ -282,8 +282,7 @@ public class WakeUpAct extends Activity {
 
                         try {
 
-                            String message=  response.getString("message");
-                            if (message.equals("Unauthorized")){
+                            if (response.getString("message").equals("Unauthorized")){
                                logoutRequest();
                             }
 
@@ -293,13 +292,9 @@ public class WakeUpAct extends Activity {
                                 dismissDialog();
                                 if (username.equals("")) {
                                     redirectTologin();
-
-
                                 } else {
                                     redirectTomap();
-
                                 }
-
                             } else {
                                 dismissDialog();
                                 if (username.equals("")) {
@@ -307,7 +302,6 @@ public class WakeUpAct extends Activity {
                                 } else {
                                     redirectTomap();
                                 }
-
                             }
 
                         } catch (JSONException e) {

@@ -258,7 +258,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         .anchor(0.5f, 0.5f).position(start));
                 CameraPosition INIT =
                         new CameraPosition.Builder()
-                                .target(new LatLng(19.0222, 72.8666))
+                                .target(new LatLng(28.502683 , 77.085969))
                                 .zoom(17.5F)
                                 .bearing(300F) // orientation
                                 .build();
@@ -563,7 +563,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         login.commit();
 //                        visible=false;
                         ShowDetailsDetailFragment.show=false;
-//                        ShowDetailsDetailFragment.arr_show=true;
+                        ShowDetailsDetailFragment.arr_show=true;
                          dop= new DatabaseOperations(StartService.this);
                         dop.deleteRow(dop,user_id);
                         finish();

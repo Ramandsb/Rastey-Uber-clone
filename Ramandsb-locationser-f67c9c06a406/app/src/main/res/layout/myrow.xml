@@ -33,7 +33,7 @@
                 android:textColor="#111111"
                 android:layout_marginBottom="5dp"
                 android:text="Pick"
-                android:textSize="17dp" />
+                android:textSize="14dp" />
             <TextView
                 android:id="@+id/mto_location"
                 android:layout_width="match_parent"
@@ -44,16 +44,15 @@
                 android:layout_marginTop="2dp"
                 android:textColor="#111111"
                 android:text="to_location"
-                android:textSize="17dp" />
-            <TextView
-                android:id="@+id/mtime"
+                android:textSize="14dp" />
+
+            <LinearLayout
+                android:id="@+id/colbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginLeft="10dp"
-                android:textColor="#111111"
-                android:text="time"
-                />
+                android:background="#E64A19"
+                android:layout_below="@+id/relativeLayout">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,24 +61,31 @@
                     android:id="@+id/icon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:layout_gravity="center"
                     android:layout_marginLeft="10dp"/>
 
                 <TextView
                     android:id="@+id/mcab_no"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:textColor="#111111"
+                    android:textColor="#ffffff"
+                    android:layout_gravity="center"
                     android:text="cab_no"
                     android:textSize="15sp" />
+                <TextView
+                    android:id="@+id/mtime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="#ffffff"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="right"
+                    android:text="time"
+                    />
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/colbar"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:background="#E64A19"
-            android:layout_below="@+id/relativeLayout">
 
         </LinearLayout>
         </LinearLayout>

@@ -181,13 +181,17 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
         final String user_id = sha.getString("user_id", "");
-        String cab_no = sha.getString("cab_no", "");
       String  time=  sha.getString("time","");
-        final String k = sharedPreferences.getString("key", "");
-        final String Auth_key = "ApiKey " + cab_no + ":" + k;
+        String   cab_no= sha.getString("cab_no", "");
+        String user=  sharedPreferences.getString("username", "");
+        String name= sha.getString("clientname", "");
+        String phone= sha.getString("phone", "");
+        final String Auth_key="ApiKey "+user+":"+sharedPreferences.getString("auth_key","");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
+        postParam.put("name", name);
+        postParam.put("phone", phone);
         postParam.put("time", time);
         postParam.put("trip", "cancel");
 

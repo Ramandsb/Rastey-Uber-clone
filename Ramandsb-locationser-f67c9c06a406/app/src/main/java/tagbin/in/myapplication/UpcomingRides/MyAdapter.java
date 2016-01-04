@@ -49,9 +49,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
     @Override
     public void onBindViewHolder(MyviewHolder holder, final int position) {
          currentItem = infoList.get(position);
-        holder.pick.setText("Pickup address :"+currentItem.getPick());
-        holder.time.setText("pickup Time :"+currentItem.getTime());
-        holder.to_loc.setText("Drop Address :"+currentItem.getDropadress());
+        holder.pick.setText("Pickup :"+currentItem.getPick());
+        holder.time.setText(""+currentItem.getTime());
+        holder.to_loc.setText("Drop :"+currentItem.getDropadress());
 
         if (currentItem.getStatus().equals("pending")){
             holder.cab_no.setText("Pending");
@@ -60,7 +60,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyviewHolder> {
         }else if (currentItem.getStatus().equals("accept")){
             holder.cab_no.setText("Ride Accepted");
             holder.icon.setImageResource(R.drawable.success);
-            holder.colbar.setBackgroundColor(Color.parseColor("#FF36FA00"));
+            holder.colbar.setBackgroundColor(Color.parseColor("#FF1F9811"));
         }else if (currentItem.getStatus().equals("Trip Started")){
             holder.cab_no.setText("Trip Started");
             holder.icon.setImageResource(R.drawable.tripaccepted);
