@@ -79,6 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_marginLeft="10dp"
+                    android:layout_marginRight="20dp"
                     android:textColor="#ffffff"
                     android:layout_gravity="center_vertical"
                     android:gravity="right"

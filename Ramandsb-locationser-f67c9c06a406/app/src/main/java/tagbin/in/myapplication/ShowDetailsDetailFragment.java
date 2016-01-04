@@ -67,6 +67,7 @@ public class ShowDetailsDetailFragment extends Fragment {
     DatabaseOperations dop;
     public static boolean arrBool = false;
     String statusurl = Config.BASE_URL + "jobs/";
+    String arrivedShared;
 
 
     public ShowDetailsDetailFragment() {
@@ -82,7 +83,7 @@ public class ShowDetailsDetailFragment extends Fragment {
             Activity activity = this.getActivity();
             sharedPreferences = getActivity().getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
             login_shared = getActivity().getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-            login_shared.getString("arrived", "false");
+         arrivedShared=   login_shared.getString("arrived", "true");
             cab_no = sharedPreferences.getString("cab_no", "");
             time = sharedPreferences.getString("time", "");
             pickup = sharedPreferences.getString("pickup", "");
@@ -199,9 +200,14 @@ public class ShowDetailsDetailFragment extends Fragment {
         if (show) {
             starttrip.setVisibility(View.VISIBLE);
         } else starttrip.setVisibility(View.GONE);
-        if (arr_show) {
+//        if (arr_show) {
+//            arrived.setVisibility(View.VISIBLE);
+//        } else arrived.setVisibility(View.GONE);
+        if (arrivedShared.equals("false")){
             arrived.setVisibility(View.VISIBLE);
-        } else arrived.setVisibility(View.GONE);
+        } else if (arrivedShared.equals("true")) {
+            arrived.setVisibility(View.GONE);
+        }
         return rootView;
     }
 
@@ -268,8 +274,11 @@ public class ShowDetailsDetailFragment extends Fragment {
                             arrived.setVisibility(View.GONE);
                             starttrip.setVisibility(View.VISIBLE);
                             show = true;
-                            arr_show = false;
+//                            arr_show = false;
                             dismissDialog();
+                            SharedPreferences.Editor loedit= login_shared.edit();
+                            loedit.putString("arrived","true");
+                            loedit.commit();
 
                         } else {
                             buttonsView.setVisibility(View.GONE);
