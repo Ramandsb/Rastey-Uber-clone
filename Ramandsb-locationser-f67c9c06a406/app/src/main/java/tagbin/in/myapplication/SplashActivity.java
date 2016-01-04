@@ -88,7 +88,7 @@ public class SplashActivity extends Activity {
     private Runnable loadHomeActivity = new Runnable() {
         public void run() {
             SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-            String username = sharedPreferences.getString("username", "");
+            String auth_key = sharedPreferences.getString("auth_key", "");
 
 
             final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -96,7 +96,7 @@ public class SplashActivity extends Activity {
             if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 turnGPSOn();
             } else {
-                if (username.equals("")) {
+                if (auth_key.equals("")) {
                     Intent i = new Intent(SplashActivity.this, LoginActivity.class);
                     startActivity(i);
                     finish();

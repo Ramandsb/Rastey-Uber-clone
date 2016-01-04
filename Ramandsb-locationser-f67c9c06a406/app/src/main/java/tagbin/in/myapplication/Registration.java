@@ -43,6 +43,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.maps.GoogleMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -126,7 +127,7 @@ public class Registration extends AppCompatActivity {
         carSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(Registration.this,"value: "+position+"   //"+categories.get(position),Toast.LENGTH_LONG).show();
+//                Toast.makeText(Registration.this,"value: "+position+"   //"+categories.get(position),Toast.LENGTH_LONG).show();
                 Log.d("setvalues", position + " ///" + categories.get(position) + "/////" + idList.get(position));
                 selected_id= (String) idList.get(position);
                 selectedCar_type= (String) categories.get(position);
@@ -144,7 +145,7 @@ public class Registration extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                createDialog();
-                alert.show();
+                showDialog();
                 mName = name.getText().toString();
                 mMobno = mobno.getText().toString();
                 mCabno = cabno.getText().toString();
@@ -182,6 +183,7 @@ public class Registration extends AppCompatActivity {
     public void showDialog(){
 
         alert.show();
+        messageView.setText("Loading");
     }
     public void dismissDialog(){
         alert.dismiss();
@@ -231,6 +233,7 @@ public class Registration extends AppCompatActivity {
 //        Log.d("postpar", jsonObject.toString());
 
 
+        showDialog();
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
                 urlSpinner,null,
@@ -254,17 +257,18 @@ public class Registration extends AppCompatActivity {
                                 Log.d("values", id + " ///" + car_type);
                                 categories.add(car_type);
                                 idList.add(id);
-
-
                             }
                             ArrayAdapter dataAdapter = new ArrayAdapter(Registration.this, android.R.layout.simple_spinner_item, categories);
                             dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             carSpinner.setAdapter(dataAdapter);
                             carSpinner.setPrompt("Select CarType");
+                            dismissDialog();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d("error",e.toString());
+                            progressBar.setVisibility(View.GONE);
+                            messageView.setText("Check Network! Try again!!");
                         }
                         ////////////////////////////////
 //                        "message": "{detail:[{\"id\":\"1\",\"car_type\":\"Economy â Dzire\"},{\"id\":\"2\",\"car_type\":\"Executive1 â Honda City \/ Etios\"}]}",
@@ -332,7 +336,10 @@ public class Registration extends AppCompatActivity {
                             if (response.getString("success").equals("true")){
                                 dismissDialog();
                                 finish();
-                            }else  messageView.setText("Connection failed");
+                            }else if (response.getString("message").equals("Username already exists!")){
+                                progressBar.setVisibility(View.GONE);
+                                messageView.setText("Username already exists!");
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();

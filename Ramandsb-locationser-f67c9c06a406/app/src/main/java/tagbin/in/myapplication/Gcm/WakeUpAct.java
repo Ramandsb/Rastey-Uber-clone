@@ -194,6 +194,7 @@ public class WakeUpAct extends Activity {
     public void showDialog() {
 
         alert.show();
+        messageView.setText("Loading");
     }
 
     public void dismissDialog() {
@@ -341,8 +342,7 @@ public class WakeUpAct extends Activity {
     public void logoutRequest() {
 
 
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String k=sharedPreferences.getString("key", "");
         final String cab_no=sharedPreferences.getString("username", "");
 //        final String apikey=u+":"+k;
@@ -370,7 +370,10 @@ public class WakeUpAct extends Activity {
                         Intent dialogIntent = new Intent(WakeUpAct.this, LoginActivity.class);
                         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(dialogIntent);
-                        clearAllPrefs();
+//                        clearAllPrefs();
+                        SharedPreferences.Editor logouteditor = sharedPreferences.edit();
+                        logouteditor.putString("auth_key","");
+                        logouteditor.commit();
                         finish();
 
                     }

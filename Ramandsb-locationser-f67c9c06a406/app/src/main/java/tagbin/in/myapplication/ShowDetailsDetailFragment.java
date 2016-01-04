@@ -225,6 +225,7 @@ public class ShowDetailsDetailFragment extends Fragment {
     public void showDialog() {
 
         alert.show();
+        messageView.setText("Loading");
     }
 
     public void dismissDialog() {
@@ -335,9 +336,6 @@ public class ShowDetailsDetailFragment extends Fragment {
 
     public void logoutRequest() {
 
-
-        SharedPreferences.Editor editor = login_shared.edit();
-        final String k = login_shared.getString("key", "");
         final String cab_no = login_shared.getString("username", "");
         final String Auth_key = "ApiKey " + cab_no + ":" + login_shared.getString("auth_key", "");
 
@@ -361,7 +359,10 @@ public class ShowDetailsDetailFragment extends Fragment {
                         Intent dialogIntent = new Intent(getActivity(), LoginActivity.class);
                         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(dialogIntent);
-                        clearAllPrefs();
+//                        clearAllPrefs();
+                        SharedPreferences.Editor editor = login_shared.edit();
+                        editor.putString("auth_key", "");
+                        editor.commit();
                         getActivity().finish();
 
                     }
@@ -372,6 +373,7 @@ public class ShowDetailsDetailFragment extends Fragment {
                 VolleyLog.d("error", "Error: " + error.getMessage());
 
 
+                displayErrors(error);
                 Log.d("error", error.toString());
             }
         }) {
@@ -442,6 +444,7 @@ public class ShowDetailsDetailFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
+                displayErrors(error);
                 Log.d("error", error.toString());
             }
         }) {
@@ -529,7 +532,7 @@ public class ShowDetailsDetailFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
                 Log.d("error", error.toString());
-                dismissDialog();
+                displayErrors(error);
             }
         }) {
 

@@ -89,6 +89,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import tagbin.in.myapplication.Database.DatabaseOperations;
+import tagbin.in.myapplication.Database.TableData;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Gcm.ShareExternalServer;
 import tagbin.in.myapplication.UpcomingRides.MyAdapter;
@@ -119,7 +120,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
    public static boolean visible = false;
     ActionBarDrawerToggle toggle;
     DrawerLayout drawer;
-//    TextView navdraname;
+    TextView navdraname;
+    View header;
      String Auth_key;
     String showEndTrip;
 //    String uni="";
@@ -147,12 +149,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         drawer.setDrawerListener(toggle);
         toggle.syncState();
           login_shared = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        usrname=login_shared.getString("username","");
-        showEndTrip=login_shared.getString("started","false");
+        usrname=login_shared.getString("username", "");
+        showEndTrip=login_shared.getString("started", "false");
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-//        navdraname= (TextView) findViewById(R.id.navdraname);
+        header = navigationView.getHeaderView(0);
+        navdraname= (TextView) header.findViewById(R.id.navdraname);
+        navdraname.setText(usrname);
         journey= (Button) findViewById(R.id.Journey);
         journey.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +195,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     public void showDialog(){
 
         alert.show();
+        messageView.setText("Loading");
     }
     public void dismissDialog(){
         alert.dismiss();
@@ -426,7 +431,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     public void logoutRequest() {
 
 
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String k=sharedPreferences.getString("key", "");
         final String cab_no=sharedPreferences.getString("username", "");
 //        final String apikey=u+":"+k;
@@ -451,11 +456,15 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         Log.d("response", response.toString());
 
                         dismissDialog();
-                        clearAllPrefs();
+//                        clearAllPrefs();
+                        SharedPreferences.Editor logouteditor = sharedPreferences.edit();
+                        logouteditor.putString("auth_key", "");
+                        logouteditor.commit();
                         stopservice();
                         Intent i = new Intent(StartService.this,LoginActivity.class);
                         startActivity(i);
                         finish();
+
 
                     }
                 }, new Response.ErrorListener() {
@@ -562,6 +571,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         login.putString("arrived", "false");
                         login.commit();
 //                        visible=false;
+                        DatabaseOperations dop = new DatabaseOperations(StartService.this);
+                        dop.eraseData(dop, TableData.Tableinfo.LOC_TABLE_NAME);
                         ShowDetailsDetailFragment.show=false;
                         ShowDetailsDetailFragment.arr_show=true;
                          dop= new DatabaseOperations(StartService.this);

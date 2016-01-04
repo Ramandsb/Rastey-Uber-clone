@@ -52,6 +52,7 @@ public class SeeUpcomingRides extends AppCompatActivity {
         setContentView(R.layout.activity_see_upcoming_rides);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mRecyclerview= (RecyclerView) findViewById(R.id.Reclist);
         sharedPreferences = getSharedPreferences(SELECTEDRIDEDETAILS,MODE_PRIVATE);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
@@ -89,7 +90,7 @@ public class SeeUpcomingRides extends AppCompatActivity {
                 Intent intent = new Intent(SeeUpcomingRides.this, ShowDetailsDetailActivity.class);
                 startActivity(intent);
                 finish();
-                Toast.makeText(SeeUpcomingRides.this, "clicked" + position + "  //" + dataItems.getCab_no(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(SeeUpcomingRides.this, "clicked" + position + "  //" + dataItems.getCab_no(), Toast.LENGTH_LONG).show();
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

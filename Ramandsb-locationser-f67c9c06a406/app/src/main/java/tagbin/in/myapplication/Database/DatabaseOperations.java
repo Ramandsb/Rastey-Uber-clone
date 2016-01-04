@@ -131,9 +131,9 @@ public class DatabaseOperations extends SQLiteOpenHelper {
 
     }
 
-    public  void eraseData(DatabaseOperations dop){
+    public  void eraseData(DatabaseOperations dop,String tableName){
         SQLiteDatabase db = dop.getWritableDatabase(); // helper is object extends SQLiteOpenHelper
-        db.delete(TableData.Tableinfo.TABLE_NAME, null, null);
+        db.delete(tableName, null, null);
         Log.d("Database Erased", "true");
     }
 

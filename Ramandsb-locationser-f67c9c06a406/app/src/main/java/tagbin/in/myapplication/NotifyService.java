@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import tagbin.in.myapplication.Database.DatabaseOperations;
+import tagbin.in.myapplication.Database.TableData;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Volley.AppController;
 import tagbin.in.myapplication.Volley.CustomRequest;
@@ -91,8 +92,8 @@ public class NotifyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO Auto-generated method stub
         WifiManager wimanager = (WifiManager) NotifyService.this.getSystemService(Context.WIFI_SERVICE);
-        macAddress = wimanager.getConnectionInfo().getMacAddress();
-        Log.d("mac", macAddress);
+       // macAddress = wimanager.getConnectionInfo().getMacAddress();
+//        Log.d("mac", macAddress);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION);
@@ -220,7 +221,7 @@ public class NotifyService extends Service {
                 i.putExtra("myLong", longiString);
                 sendBroadcast(i);
                 SharedPreferences sharedPref = getApplication().getSharedPreferences(LoginActivity.LOGINDETAILS,MODE_PRIVATE);
-               String user=sharedPref.getString("username", "");
+               String user=sharedPref.getString("auth_key", "");
                 if (putLatln) {
                     Long tsLong = System.currentTimeMillis() / 1000;
                     if (uni.equals("")) {
@@ -343,7 +344,7 @@ logoutRequest();
     public void logoutRequest() {
 
 
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         final String k=sharedPreferences.getString("key", "");
         final String cab_no=sharedPreferences.getString("username", "");
@@ -381,7 +382,10 @@ logoutRequest();
                         Intent dialogIntent = new Intent(NotifyService.this, LoginActivity.class);
                         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(dialogIntent);
-                        clearAllPrefs();
+//                        clearAllPrefs();
+                        SharedPreferences.Editor logouteditor = sharedPreferences.edit();
+                        logouteditor.putString("auth_key", "");
+                        logouteditor.commit();
                         sendBroadcast(new Intent("logout"));
                         request=false;
 

@@ -12,16 +12,24 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -47,6 +55,9 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     SharedPreferences Logindetails_sharedPreferences;
     FloatingActionButton fab;
     DatabaseOperations dop;
+    TextView messageView;
+    ProgressBar progressBar;
+    AlertDialog alert;
 
     public static boolean show = false;
 
@@ -66,8 +77,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         user_id = SELECTEDRIDEDETAILS_sharedPreferences.getString("user_id", "");
         status = SELECTEDRIDEDETAILS_sharedPreferences.getString("status", "");
         dop = new DatabaseOperations(this);
-
-
+        customDialog();
         fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -99,6 +109,27 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                     .add(R.id.showdetails_detail_container, fragment)
                     .commit();
         }
+    }
+
+    public void customDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View customView = inflater.inflate(R.layout.dialog, null);
+        builder.setView(customView);
+        messageView = (TextView) customView.findViewById(R.id.tvdialog);
+        progressBar = (ProgressBar) customView.findViewById(R.id.progress);
+        alert = builder.create();
+
+    }
+
+    public void showDialog() {
+
+        alert.show();
+        messageView.setText("Loading");
+    }
+
+    public void dismissDialog() {
+        alert.dismiss();
     }
 
     @Override
@@ -157,6 +188,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        showDialog();
                         makeJsonObjReq("yes");
                         dialog.cancel();
                     }
@@ -181,12 +213,12 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
         final String user_id = sha.getString("user_id", "");
-      String  time=  sha.getString("time","");
-        String   cab_no= sha.getString("cab_no", "");
-        String user=  sharedPreferences.getString("username", "");
-        String name= sha.getString("clientname", "");
-        String phone= sha.getString("phone", "");
-        final String Auth_key="ApiKey "+user+":"+sharedPreferences.getString("auth_key","");
+        String time = sha.getString("time", "");
+        String cab_no = sha.getString("cab_no", "");
+        String user = sharedPreferences.getString("username", "");
+        String name = sha.getString("clientname", "");
+        String phone = sha.getString("phone", "");
+        final String Auth_key = "ApiKey " + user + ":" + sharedPreferences.getString("auth_key", "");
         Map<String, String> postParam = new HashMap<String, String>();
         postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
@@ -209,10 +241,12 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                         String message = null;
                         try {
                             message = response.getString("message");
+                            dismissDialog();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         if (message.equals("Unauthorized")) {
+                            messageView.setText("User Unauthorized");
                             logoutRequest();
                         }
                         ShowDetailsDetailFragment.show = false;
@@ -227,7 +261,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
-
+                displayErrors(error);
                 Log.d("error", error.toString());
             }
         }) {
@@ -254,24 +288,23 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     public void logoutRequest() {
 
 
-        SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        final String k=sharedPreferences.getString("key", "");
-        final String cab_no=sharedPreferences.getString("username", "");
+        final String k = sharedPreferences.getString("key", "");
+        final String cab_no = sharedPreferences.getString("username", "");
 //        final String apikey=u+":"+k;
 //        Log.d("shkey",apikey);
-        final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+        final String Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("auth_key", "");
 
-        Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("cab_no",cab_no);
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("cab_no", cab_no);
         postParam.put("logout", "yes");
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
 
-
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                StartService.Logout_url,jsonObject,
+                StartService.Logout_url, jsonObject,
                 new Response.Listener<JSONObject>() {
 
                     @Override
@@ -283,7 +316,10 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                         Intent dialogIntent = new Intent(ShowDetailsDetailActivity.this, LoginActivity.class);
                         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(dialogIntent);
-                        clearAllPrefs();
+//                        clearAllPrefs();
+                        SharedPreferences.Editor logouteditor = sharedPreferences.edit();
+                        logouteditor.putString("auth_key", "");
+                        logouteditor.commit();
                         finish();
 
                     }
@@ -293,6 +329,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
 
+                displayErrors(error);
 
                 Log.d("error", error.toString());
             }
@@ -303,11 +340,10 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
-
 
 
         };
@@ -318,17 +354,38 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
         // Cancelling request
         // ApplicationController.getInstance().getRequestQueue().cancelAll(tag_json_obj);
     }
-    public void clearAllPrefs(){
+
+    public void clearAllPrefs() {
         final SharedPreferences prefs = getSharedPreferences(
                 Registration.STOREGCMID, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
         editor.commit();
-        SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor lEditor= loginDetails.edit();
+        SharedPreferences loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor = loginDetails.edit();
         lEditor.clear();
         lEditor.commit();
 
     }
+
+
+    public void displayErrors(VolleyError error) {
+        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+            progressBar.setVisibility(View.GONE);
+            messageView.setText("Connection failed");
+        } else if (error instanceof AuthFailureError) {
+            progressBar.setVisibility(View.GONE);
+            messageView.setText("AuthFailureError");
+        } else if (error instanceof ServerError) {
+            progressBar.setVisibility(View.GONE);
+            messageView.setText("ServerError");
+        } else if (error instanceof NetworkError) {
+            messageView.setText("NetworkError");
+        } else if (error instanceof ParseError) {
+            progressBar.setVisibility(View.GONE);
+            messageView.setText("ParseError");
+        }
+    }
+
 
 }

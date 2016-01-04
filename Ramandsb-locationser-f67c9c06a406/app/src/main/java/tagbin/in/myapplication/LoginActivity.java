@@ -62,6 +62,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tagbin.in.myapplication.Database.DatabaseOperations;
+import tagbin.in.myapplication.Database.TableData;
 import tagbin.in.myapplication.Gcm.Config;
 import tagbin.in.myapplication.Volley.AppController;
 import tagbin.in.myapplication.Volley.CustomRequest;
@@ -118,6 +120,7 @@ public class LoginActivity extends AppCompatActivity {
     public void showDialog(){
 
         alert.show();
+        messageView.setText("Loading");
     }
     public void dismissDialog(){
         alert.dismiss();
@@ -130,10 +133,6 @@ public class LoginActivity extends AppCompatActivity {
         showDialog();
       makeJsonObjReq(mNumber, mPassword);
 
-//       if(sharedPreferences.getString("key","").equals("")){
-//           number.setError("LoginFailed");
-//       }else {
-//           Log.d("key",sharedPreferences.getString("key",""));
 
 
     }
@@ -168,12 +167,26 @@ public class LoginActivity extends AppCompatActivity {
                             String key= response.getString("key");
                             String success= response.getString("success");
                             String username= response.getString("username");
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                           String saveuser= sharedPreferences.getString("username", "nothing");
+                            if (username.equals(saveuser)){
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("username", username);
-                            editor.putString("auth_key",key);
-                            editor.putString("started","false");
-                            editor.putString("arrived","false");
+                                editor.putString("auth_key",key);
                                 editor.commit();
+                            }else {
+                                clearAllPrefs();
+                                DatabaseOperations dop = new DatabaseOperations(LoginActivity.this);
+                                dop.eraseData(dop, TableData.Tableinfo.TABLE_NAME);
+                                dop.eraseData(dop, TableData.Tableinfo.LOC_TABLE_NAME);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("username", username);
+                                editor.putString("auth_key",key);
+                                editor.putString("started","false");
+                                editor.putString("arrived","false");
+                                editor.commit();
+
+                            }
+
                                Log.d("sharedPreferences", sharedPreferences.getAll().toString());
                             Intent i = new Intent(LoginActivity.this,StartService.class);
                             startActivity(i);
@@ -241,7 +254,18 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void clearAllPrefs(){
+        final SharedPreferences prefs = getSharedPreferences(
+                Registration.STOREGCMID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.commit();
+        SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor= loginDetails.edit();
+        lEditor.clear();
+        lEditor.commit();
 
+    }
 
 }
 
