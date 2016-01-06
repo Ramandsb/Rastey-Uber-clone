@@ -472,7 +472,6 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
-
                 displayErrors(error);
                 Log.d("error", error.toString());
             }
@@ -499,8 +498,6 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 headers.put("Authorization",Auth_key);
                 return headers;
             }
-
-
 
         };
 
