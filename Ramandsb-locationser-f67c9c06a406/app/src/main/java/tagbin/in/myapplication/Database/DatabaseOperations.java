@@ -155,6 +155,16 @@ public class DatabaseOperations extends SQLiteOpenHelper {
         String count = Integer.toString(cnt);
         return count;
     }
+
+    public int  getuser_idCount(String value) {
+        String countQuery = "SELECT  * FROM " + TableData.Tableinfo.TABLE_NAME+" WHERE "+ TableData.Tableinfo.USER_ID+" = '" + value + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        String count = Integer.toString(cnt);
+        return cnt;
+    }
     public void removeAll()
     {
         // db.delete(String tableName, String whereClause, String[] whereArgs);

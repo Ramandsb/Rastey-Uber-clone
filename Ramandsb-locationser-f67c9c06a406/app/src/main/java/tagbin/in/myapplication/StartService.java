@@ -63,7 +63,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.github.glomadrian.loadingballs.factory.path.Star;
+//import com.github.glomadrian.loadingballs.factory.path.Star;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -96,38 +96,35 @@ import tagbin.in.myapplication.UpcomingRides.MyAdapter;
 import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
 
-public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener,NavigationView.OnNavigationItemSelectedListener{
+public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener,NavigationView.OnNavigationItemSelectedListener {
 
     DatabaseOperations dop;
-  public static Double mylat=0.000, mylong=0.000;
+    public static Double mylat = 0.000, mylong = 0.000;
     public static final String BROADCAST_ACTION = "Hello World";
-    TextView latTv,longTv;
+    TextView latTv, longTv;
     private GoogleMap mMap;
     LatLng latLng;
     Dialog dialog;
     Marker marker;
     String usrname;
     LatLng start;
-    public  static String Logout_url = Config.BASE_URL+"logout/";
-   String jernydoneUrl= Config.BASE_URL+"endTrip/";
+    public static String Logout_url = Config.BASE_URL + "logout/";
+    String jernydoneUrl = Config.BASE_URL + "endTrip/";
     SharedPreferences sharedPreferences;
-    SharedPreferences  login_shared;
+    SharedPreferences login_shared;
     SharedPreferences sha;
     AlertDialog alert;
     TextView messageView;
     ProgressBar progressBar;
-   public Button journey;
-   public static boolean visible = false;
+    public Button journey;
+    public static boolean visible = false;
     ActionBarDrawerToggle toggle;
     DrawerLayout drawer;
     TextView navdraname;
     View header;
-     String Auth_key;
+    String Auth_key;
     String showEndTrip;
-//    String uni="";
-
-
-
+    //    String uni="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -143,69 +140,70 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         StartService.this.startService(intent);
         customDialog();
 
-         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-         toggle = new ActionBarDrawerToggle(
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-          login_shared = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        usrname=login_shared.getString("username", "");
-        showEndTrip=login_shared.getString("started", "false");
+        login_shared = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        usrname = login_shared.getString("username", "");
+        showEndTrip = login_shared.getString("started", "false");
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         header = navigationView.getHeaderView(0);
-        navdraname= (TextView) header.findViewById(R.id.navdraname);
+        navdraname = (TextView) header.findViewById(R.id.navdraname);
         navdraname.setText(usrname);
-        journey= (Button) findViewById(R.id.Journey);
+        journey = (Button) findViewById(R.id.Journey);
         journey.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDialog();
                 makeJsonObjReq(usrname);
-                Log.d("username",usrname);
-               journey.setVisibility(View.INVISIBLE);
+                Log.d("username", usrname);
+                journey.setVisibility(View.INVISIBLE);
 
             }
         });
 //        if (visible){
 //            journey.setVisibility(View.VISIBLE);
 //        }else journey.setVisibility(View.INVISIBLE);
-        if (showEndTrip.equals("false")){
+        if (showEndTrip.equals("false")) {
             journey.setVisibility(View.INVISIBLE);
-        }else if (showEndTrip.equals("true")){
+        } else if (showEndTrip.equals("true")) {
             journey.setVisibility(View.VISIBLE);
         }
 
     }
 
-    public void customDialog()
-    {
+    public void customDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
 
         View customView = inflater.inflate(R.layout.dialog, null);
         builder.setView(customView);
-        messageView = (TextView)customView.findViewById(R.id.tvdialog);
-        progressBar= (ProgressBar) customView.findViewById(R.id.progress);
+        messageView = (TextView) customView.findViewById(R.id.tvdialog);
+        progressBar = (ProgressBar) customView.findViewById(R.id.progress);
         alert = builder.create();
 
     }
 
-    public void showDialog(){
+    public void showDialog() {
 
         alert.show();
         messageView.setText("Loading");
     }
-    public void dismissDialog(){
+
+    public void dismissDialog() {
         alert.dismiss();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigationdrawer, menu);
         MenuItem rides = menu.findItem(R.id.rides);
-        DatabaseOperations dop= new DatabaseOperations(this);
+        DatabaseOperations dop = new DatabaseOperations(this);
         rides.setTitle(dop.getProfilesCount());
         return true;
     }
@@ -230,7 +228,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         }
         if (id == android.R.id.home) {
 
-             drawer.openDrawer(GravityCompat.START);
+            drawer.openDrawer(GravityCompat.START);
             return true;
         }
 
@@ -255,15 +253,15 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setAllGesturesEnabled(true);
-                 start = new LatLng(28.502683 , 77.085969);
-                marker=mMap.addMarker(new MarkerOptions()
+                start = new LatLng(28.502683, 77.085969);
+                marker = mMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .icon(BitmapDescriptorFactory
                                 .fromResource(R.mipmap.myc))
                         .anchor(0.5f, 0.5f).position(start));
                 CameraPosition INIT =
                         new CameraPosition.Builder()
-                                .target(new LatLng(28.502683 , 77.085969))
+                                .target(new LatLng(28.502683, 77.085969))
                                 .zoom(17.5F)
                                 .bearing(300F) // orientation
                                 .build();
@@ -274,15 +272,39 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         }
     }
 
+    static public void rotateMarker(final Marker marker, final float toRotation, GoogleMap map) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        final float startRotation = marker.getRotation();
+        final long duration = 1555;
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed / duration);
+
+                float rot = t * toRotation + (1 - t) * startRotation;
+
+                marker.setRotation(-rot > 180 ? rot / 2 : rot);
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                }
+            }
+        });
+    }
 
 
-    private BroadcastReceiver uiUpdated= new BroadcastReceiver() {
+    private BroadcastReceiver uiUpdated = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
 
-       mylat =     Double.parseDouble(intent.getExtras().getString("myLat"));
-       mylong  =   Double.parseDouble(intent.getExtras().getString("myLong"));
+            mylat = Double.parseDouble(intent.getExtras().getString("myLat"));
+            mylong = Double.parseDouble(intent.getExtras().getString("myLong"));
             ArrayList<LatLng> latlong = new ArrayList<LatLng>();
 
             Log.d("vals", intent.getExtras().getString("myLat") + "  " + intent.getExtras().getString("myLong"));
@@ -294,22 +316,22 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 //                uni=uni;
 //            }
 ////            String ts = tsLong.toString();
-        Log.d("LocationCount is : ", dop.getlatlngCount());
+            Log.d("LocationCount is : ", dop.getlatlngCount());
 
-             latLng = new LatLng(mylat, mylong);
+            latLng = new LatLng(mylat, mylong);
             latlong.add(latLng);
-            int i =0;
-           // marker.setRotation();///
-            animateMarker(marker,latLng,false);
+            int i = 0;
+            // marker.setRotation();///
+            animateMarker(marker, latLng, false);
 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latlong.get(i)));
 
 
         }
     };
+
     public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker)
-    {
+                              final boolean hideMarker) {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         Projection proj = mMap.getProjection();
@@ -391,10 +413,11 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(logout, new IntentFilter("logout"));    }
+        registerReceiver(logout, new IntentFilter("logout"));
+    }
 
 
-   public void logoutdialog(){
+    public void logoutdialog() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
 
@@ -427,27 +450,27 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         // show it
         alertDialog.show();
 
-}
+    }
+
     public void logoutRequest() {
 
 
-        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        final String k=sharedPreferences.getString("key", "");
-        final String cab_no=sharedPreferences.getString("username", "");
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final String k = sharedPreferences.getString("key", "");
+        final String cab_no = sharedPreferences.getString("username", "");
 //        final String apikey=u+":"+k;
 //        Log.d("shkey",apikey);
-        Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
+        Auth_key = "ApiKey " + cab_no + ":" + sharedPreferences.getString("auth_key", "");
 
-        Map<String, String> postParam= new HashMap<String, String>();
-        postParam.put("cab_no",cab_no);
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("cab_no", cab_no);
         postParam.put("logout", "yes");
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 
 
-
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                Logout_url,jsonObject,
+                Logout_url, jsonObject,
                 new Response.Listener<JSONObject>() {
 
                     @Override
@@ -461,7 +484,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         logouteditor.putString("auth_key", "");
                         logouteditor.commit();
                         stopservice();
-                        Intent i = new Intent(StartService.this,LoginActivity.class);
+                        Intent i = new Intent(StartService.this, LoginActivity.class);
                         startActivity(i);
                         finish();
 
@@ -494,8 +517,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
 
@@ -522,21 +545,21 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     }
 
     private void makeJsonObjReq(String s) {
-        final SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
-      String  phone=sha.getString("phone","");
-      String  clientname=sha.getString("clientname", "");
-     final String user_id=   sha.getString("user_id", "");
-     String   cab_no= sha.getString("cab_no", "");
-        String user=  sharedPreferences.getString("username", "");
-        final String Auth_key="ApiKey "+user+":"+sharedPreferences.getString("auth_key","");
+        String phone = sha.getString("phone", "");
+        String clientname = sha.getString("clientname", "");
+        final String user_id = sha.getString("user_id", "");
+        String cab_no = sha.getString("cab_no", "");
+        String user = sharedPreferences.getString("username", "");
+        final String Auth_key = "ApiKey " + user + ":" + sharedPreferences.getString("auth_key", "");
         Map<String, String> postParam = new HashMap<String, String>();
-        postParam.put("user_id",user_id);
+        postParam.put("user_id", user_id);
         postParam.put("username", cab_no);
         postParam.put("lat", mylat.toString());
         postParam.put("lng", mylong.toString());
         postParam.put("client_name", clientname);
-        postParam.put("phone",phone);
+        postParam.put("phone", phone);
         postParam.put("trip", "End");
 
         JSONObject jsonObject = new JSONObject(postParam);
@@ -550,13 +573,13 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("response", response.toString());
-                        String message= null;
+                        String message = null;
                         try {
                             message = response.getString("message");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        if (message.equals("Unauthorized")){
+                        if (message.equals("Unauthorized")) {
                             logoutRequest();
                         }
                         progressBar.setVisibility(View.GONE);
@@ -570,14 +593,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 //                        visible=false;
                         DatabaseOperations dop = new DatabaseOperations(StartService.this);
                         dop.eraseData(dop, TableData.Tableinfo.LOC_TABLE_NAME);
-                        ShowDetailsDetailFragment.show=false;
-                        ShowDetailsDetailFragment.arr_show=true;
-                         dop= new DatabaseOperations(StartService.this);
-                        dop.deleteRow(dop,user_id);
+                        ShowDetailsDetailFragment.show = false;
+                        ShowDetailsDetailFragment.arr_show = true;
+                        dop = new DatabaseOperations(StartService.this);
+                        dop.deleteRow(dop, user_id);
                         finish();
                         Intent i = getIntent();
                         startActivity(i);
-                        NotifyService.putLatln=false;
+                        NotifyService.putLatln = false;
 
                     }
                 }, new Response.ErrorListener() {
@@ -596,15 +619,13 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json");
-                headers.put( "charset", "utf-8");
-                headers.put("Authorization",Auth_key);
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
                 return headers;
             }
 
 
-
         };
-
 
 
         // Adding request to request queue
@@ -628,23 +649,25 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             messageView.setText("ParseError");
         }
     }
-    public void stopservice(){
-        NotifyService.request=false;
+
+    public void stopservice() {
+        NotifyService.request = false;
     }
-    public void clearAllPrefs(){
+
+    public void clearAllPrefs() {
         final SharedPreferences prefs = getSharedPreferences(
                 Registration.STOREGCMID, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
         editor.commit();
-      SharedPreferences  loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor lEditor= loginDetails.edit();
+        SharedPreferences loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor lEditor = loginDetails.edit();
         lEditor.clear();
         lEditor.commit();
 
     }
-    public void navdraOncreate()
-    {
+
+    public void navdraOncreate() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -654,6 +677,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -672,12 +696,12 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-           Intent i = new Intent(this, SeeUpcomingRides.class);
+            Intent i = new Intent(this, SeeUpcomingRides.class);
             startActivity(i);
             finish();
         } else if (id == R.id.nav_gallery) {
             logoutdialog();
-        }else if(id==R.id.call){
+        } else if (id == R.id.call) {
             Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "01148844884"));
             startActivity(intent);
         }
@@ -686,5 +710,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-}
+    ////////////////////////////////
 
+
+}

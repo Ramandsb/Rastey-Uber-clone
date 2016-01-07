@@ -136,7 +136,10 @@ public class WakeUpAct extends Activity {
                 fromtv.setText(dropAddress);
                 long timeinmili=  calculatemilisecs(current_houre_Int,current_minuts_int,current_sec_int,pickup_houre_Int,pickup_minuts_Int,pickup_sec_Int);
                 String timinmilli=Long.toString(timeinmili);
-                dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli,"pending",dropAddress,phoneno,clientname);
+              int userid_count=  dop.getuser_idCount(user_id);
+                if (userid_count <= 0) {
+                    dop.putInformation(dop, cab_no, pickup_time, user_id, pickup_address, timinmilli, "pending", dropAddress, phoneno, clientname);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

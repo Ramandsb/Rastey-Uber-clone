@@ -210,7 +210,7 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
     }
 
     private void makeJsonObjReq(String s) {
-        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         SharedPreferences sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
         final String user_id = sha.getString("user_id", "");
         String time = sha.getString("time", "");
@@ -249,6 +249,12 @@ public class ShowDetailsDetailActivity extends AppCompatActivity {
                             messageView.setText("User Unauthorized");
                             logoutRequest();
                         }
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("started", "false");
+                        editor.commit();
+                        SharedPreferences.Editor login = sharedPreferences.edit();
+                        login.putString("arrived", "false");
+                        login.commit();
                         ShowDetailsDetailFragment.show = false;
                         ShowDetailsDetailFragment.arr_show = true;
                         dop.deleteRow(dop, user_id);

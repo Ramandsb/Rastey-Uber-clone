@@ -2,18 +2,23 @@ package tagbin.in.myapplication;
 
 import tagbin.in.myapplication.util.SystemUiHider;
 
+import android.*;
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,12 +39,13 @@ import com.google.android.gms.auth.api.Auth;
  *
  * @see SystemUiHider
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback{
     private ProgressBar progressBar;
     private Handler mHandler = new Handler();
     AlertDialog alert;
     TextView messageView;
-
+    public static int REQUEST_LOCATION=0;
+View mLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +98,20 @@ public class SplashActivity extends Activity {
 
 
             final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(SplashActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SplashActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+                Snackbar.make(mLayout, "Permission is required to access location",
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction("ok", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(SplashActivity.this,
+                                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        REQUEST_LOCATION);
+                            }
+                        })
+                        .show();
+            }
             if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 turnGPSOn();
             } else {
