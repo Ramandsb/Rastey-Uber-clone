@@ -17,6 +17,7 @@ import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.Uri;
@@ -67,6 +68,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -96,7 +98,7 @@ import tagbin.in.myapplication.UpcomingRides.MyAdapter;
 import tagbin.in.myapplication.UpcomingRides.SeeUpcomingRides;
 import tagbin.in.myapplication.Volley.AppController;
 
-public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener,GoogleMap.OnMapClickListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMyLocationButtonClickListener,NavigationView.OnNavigationItemSelectedListener {
+public class StartService extends AppCompatActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerDragListener, GoogleMap.OnMyLocationButtonClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     DatabaseOperations dop;
     public static Double mylat = 0.000, mylong = 0.000;
@@ -105,11 +107,14 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     private GoogleMap mMap;
     LatLng latLng;
     Dialog dialog;
+    Sensor Sensorrotation;
     Marker marker;
     String usrname;
     LatLng start;
+    float[] mRotationMatrix;
     public static String Logout_url = Config.BASE_URL + "logout/";
     String jernydoneUrl = Config.BASE_URL + "endTrip/";
+    String getOtpurl = Config.BASE_URL + "otp/";
     SharedPreferences sharedPreferences;
     SharedPreferences login_shared;
     SharedPreferences sha;
@@ -123,9 +128,21 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     TextView navdraname;
     View header;
     String Auth_key;
+    String otps;
     String showEndTrip;
     //    String uni="";
+    float declination;
+    //    SensorEventListener myListener;
+    SensorManager mSensorManager;
+    Sensor mSensoracc, mSensormag, mSensorgrav;
+    //SensorEventListener myListener;
+    static float[] magval, accval, ResVec, accval1 = new float[4];
+    static float[] Orival = new float[4];
+    static float[] Ri, Ii, Ro = new float[16];
+    static double[] Angles = new double[3];
+    long currtime = 0;
 
+    Sensor sensor;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,9 +176,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             @Override
             public void onClick(View v) {
                 showDialog();
-                makeJsonObjReq(usrname);
-                Log.d("username", usrname);
-                journey.setVisibility(View.INVISIBLE);
+                makeotpJsonObjReq();
 
             }
         });
@@ -188,9 +203,22 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
     }
 
+    public void endtripDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+
+        View customView = inflater.inflate(R.layout.dialog, null);
+        builder.setView(customView);
+        messageView = (TextView) customView.findViewById(R.id.tvdialog);
+        progressBar = (ProgressBar) customView.findViewById(R.id.progress);
+        alert = builder.create();
+
+    }
+
     public void showDialog() {
 
         alert.show();
+        progressBar.setVisibility(View.VISIBLE);
         messageView.setText("Loading");
     }
 
@@ -244,6 +272,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+
                 mMap.setOnMarkerDragListener(this);
                 mMap.setOnMapLongClickListener(this);
                 mMap.setOnMapClickListener(this);
@@ -259,6 +288,10 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         .icon(BitmapDescriptorFactory
                                 .fromResource(R.mipmap.myc))
                         .anchor(0.5f, 0.5f).position(start));
+//                DraggableCircle draggableCircle = new DraggableCircle(start,100000,mMap);
+                int mFillColor = Color.HSVToColor(
+                        38, new float[]{Color.parseColor("#55C5FD"), 1, 1});
+                mMap.addCircle(new CircleOptions().center(start).radius(100).fillColor(mFillColor).strokeWidth(0));
                 CameraPosition INIT =
                         new CameraPosition.Builder()
                                 .target(new LatLng(28.502683, 77.085969))
@@ -268,34 +301,36 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
                 // use map to move camera into position
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(INIT));
+                changeCamera(CameraUpdateFactory.newCameraPosition(INIT),null);
+//                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(INIT));
             }
         }
     }
 
-    static public void rotateMarker(final Marker marker, final float toRotation, GoogleMap map) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final float startRotation = marker.getRotation();
-        final long duration = 1555;
-
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed / duration);
-
-                float rot = t * toRotation + (1 - t) * startRotation;
-
-                marker.setRotation(-rot > 180 ? rot / 2 : rot);
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                }
-            }
-        });
-    }
+//    static public void rotateMarker(final Marker marker, final float toRotation, GoogleMap map) {
+//        final Handler handler = new Handler();
+//        final long start = SystemClock.uptimeMillis();
+//        final float startRotation = marker.getRotation();
+//        final long duration = 1555;
+//
+//        final Interpolator interpolator = new LinearInterpolator();
+//
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                long elapsed = SystemClock.uptimeMillis() - start;
+//                float t = interpolator.getInterpolation((float) elapsed / duration);
+//
+//                float rot = t * toRotation + (1 - t) * startRotation;
+//
+//                marker.setRotation(-rot > 180 ? rot / 2 : rot);
+//                if (t < 1.0) {
+//                    // Post again 16ms later.
+//                    handler.postDelayed(this, 16);
+//                }
+//            }
+//        });
+//    }
 
 
     private BroadcastReceiver uiUpdated = new BroadcastReceiver() {
@@ -305,6 +340,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
             mylat = Double.parseDouble(intent.getExtras().getString("myLat"));
             mylong = Double.parseDouble(intent.getExtras().getString("myLong"));
+            declination = intent.getExtras().getFloat("declination");
             ArrayList<LatLng> latlong = new ArrayList<LatLng>();
 
             Log.d("vals", intent.getExtras().getString("myLat") + "  " + intent.getExtras().getString("myLong"));
@@ -324,12 +360,22 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             // marker.setRotation();///
             animateMarker(marker, latLng, false);
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlong.get(i)));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlong.get(i)));
+            changeCamera(CameraUpdateFactory.newLatLng(latlong.get(i)),null);
 
 
         }
     };
+    private void changeCamera(CameraUpdate update, GoogleMap.CancelableCallback callback) {
 
+                int duration = 2000;
+
+                mMap.animateCamera(update, Math.max(duration, 1), callback);
+
+
+
+
+    }
     public void animateMarker(final Marker marker, final LatLng toPosition,
                               final boolean hideMarker) {
         final Handler handler = new Handler();
@@ -538,13 +584,57 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         }
     };
 
+    public void otpdialog() {
+
+        LayoutInflater li = LayoutInflater.from(StartService.this);
+        View promptsView = li.inflate(R.layout.otpdialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                StartService.this);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView
+                .findViewById(R.id.editTextDialogUserInput);
+
+        // set dialog message
+        alertDialogBuilder
+                .setTitle("Enter OTP to End Trip")
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // get user input and set it to result
+                                // edit text
+                                 otps =  userInput.getText().toString();
+                                showDialog();
+                                makeJsonObjReq(otps);
+                                Log.d("username", usrname);
+
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
+    }
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(logout);
     }
 
-    private void makeJsonObjReq(String s) {
+    private void makeJsonObjReq(String otp) {
         final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
         String phone = sha.getString("phone", "");
@@ -561,6 +651,7 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         postParam.put("client_name", clientname);
         postParam.put("phone", phone);
         postParam.put("trip", "End");
+        postParam.put("otp", otp);
 
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
@@ -568,6 +659,93 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
                 jernydoneUrl, jsonObject,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("response", response.toString());
+                        String message=null;String success = null;
+                        try {
+                            message = response.getString("message");
+                            success= response.getString("success");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (message.equals("Unauthorized")) {
+                            logoutRequest();
+                        }
+                        if (success.equals("true")) {
+                            progressBar.setVisibility(View.GONE);
+                            messageView.setText("Job Finished");
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("started", "false");
+                            editor.commit();
+                            SharedPreferences.Editor login = login_shared.edit();
+                            login.putString("arrived", "false");
+                            login.commit();
+//                        visible=false;
+                            DatabaseOperations dop = new DatabaseOperations(StartService.this);
+                            dop.eraseData(dop, TableData.Tableinfo.LOC_TABLE_NAME);
+                            ShowDetailsDetailFragment.show = false;
+                            ShowDetailsDetailFragment.arr_show = true;
+                            dop = new DatabaseOperations(StartService.this);
+                            dop.deleteRow(dop, user_id);
+                            finish();
+                            Intent i = getIntent();
+                            startActivity(i);
+                            NotifyService.putLatln = false;
+                            journey.setVisibility(View.INVISIBLE);
+                        }else {
+                            progressBar.setVisibility(View.GONE);
+                            messageView.setText(message);
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("error", "Error: " + error.getMessage());
+                displayErrors(error);
+                Log.d("error", error.toString());
+            }
+        }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put("charset", "utf-8");
+                headers.put("Authorization", Auth_key);
+                return headers;
+            }
+
+
+        };
+
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+    }
+
+    private void makeotpJsonObjReq() {
+        final SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
+        sha = getSharedPreferences(SeeUpcomingRides.SELECTEDRIDEDETAILS, Context.MODE_PRIVATE);
+        final String user_id = sha.getString("user_id", "");
+        String phone = sha.getString("phone", "");
+        String cab_no = sha.getString("cab_no", "");
+        String user = sharedPreferences.getString("username", "");
+        final String Auth_key = "ApiKey " + user + ":" + sharedPreferences.getString("auth_key", "");
+        Map<String, String> postParam = new HashMap<String, String>();
+        postParam.put("user_id", user_id);
+        postParam.put("phone", phone);
+        JSONObject jsonObject = new JSONObject(postParam);
+        Log.d("postpar", jsonObject.toString());
+
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                getOtpurl, jsonObject,
                 new Response.Listener<JSONObject>() {
 
                     @Override
@@ -582,25 +760,8 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
                         if (message.equals("Unauthorized")) {
                             logoutRequest();
                         }
-                        progressBar.setVisibility(View.GONE);
-                        messageView.setText("Job Finished");
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("started", "false");
-                        editor.commit();
-                        SharedPreferences.Editor login = login_shared.edit();
-                        login.putString("arrived", "false");
-                        login.commit();
-//                        visible=false;
-                        DatabaseOperations dop = new DatabaseOperations(StartService.this);
-                        dop.eraseData(dop, TableData.Tableinfo.LOC_TABLE_NAME);
-                        ShowDetailsDetailFragment.show = false;
-                        ShowDetailsDetailFragment.arr_show = true;
-                        dop = new DatabaseOperations(StartService.this);
-                        dop.deleteRow(dop, user_id);
-                        finish();
-                        Intent i = getIntent();
-                        startActivity(i);
-                        NotifyService.putLatln = false;
+                        dismissDialog();
+                        otpdialog();
 
                     }
                 }, new Response.ErrorListener() {
@@ -608,7 +769,6 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("error", "Error: " + error.getMessage());
-
                 displayErrors(error);
                 Log.d("error", error.toString());
             }
@@ -654,29 +814,6 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
         NotifyService.request = false;
     }
 
-    public void clearAllPrefs() {
-        final SharedPreferences prefs = getSharedPreferences(
-                Registration.STOREGCMID, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
-        editor.commit();
-        SharedPreferences loginDetails = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor lEditor = loginDetails.edit();
-        lEditor.clear();
-        lEditor.commit();
-
-    }
-
-    public void navdraOncreate() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
 
     @Override
     public void onBackPressed() {
@@ -689,8 +826,17 @@ public class StartService extends AppCompatActivity implements GoogleMap.OnMapLo
     }
 
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
+
+
+
+
+    private void updateCamera(float bearing) {
+        CameraPosition oldPos = mMap.getCameraPosition();
+
+        CameraPosition pos = CameraPosition.builder(oldPos).bearing(bearing).build();
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
+    }
+
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();

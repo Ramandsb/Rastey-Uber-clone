@@ -224,6 +224,7 @@ public class ShowDetailsDetailFragment extends Fragment {
 
     public void showDialog() {
 
+        progressBar.setVisibility(View.VISIBLE);
         alert.show();
         messageView.setText("Loading");
     }
@@ -427,17 +428,29 @@ public class ShowDetailsDetailFragment extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        StartService.visible = true;
-                        starttrip.setVisibility(View.GONE);
-                        show = false;
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("started", "true");
-                        editor.commit();
-                        dop.putStatus(dop, "Trip Started", user_id);
-                        NotifyService.putLatln = true;
-                        Intent i = new Intent(getActivity(), StartService.class);
-                        startActivity(i);
-                        getActivity().finish();
+                        String suc=null;
+                        try {
+                            suc=response.getString("success");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (suc.equals("true")) {
+                            Log.d("startTr", response.toString());
+                            StartService.visible = true;
+                            starttrip.setVisibility(View.GONE);
+                            show = false;
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("started", "true");
+                            editor.commit();
+                            dop.putStatus(dop, "Trip Started", user_id);
+                            NotifyService.putLatln = true;
+                            Intent i = new Intent(getActivity(), StartService.class);
+                            startActivity(i);
+                            getActivity().finish();
+                        }else {
+                            progressBar.setVisibility(View.GONE);
+                            messageView.setText(response.toString());
+                        }
                     }
                 }, new Response.ErrorListener() {
 

@@ -99,7 +99,7 @@ public class WakeUpAct extends Activity {
         ridestatusShared =getSharedPreferences(RIDESTATUS,MODE_PRIVATE);
         dop = new DatabaseOperations(this);
         tvDialog = (TextView) findViewById(R.id.tvdialog);
-        registerReceiver(logout, new IntentFilter("logout"));
+        //registerReceiver(logout, new IntentFilter("logout"));
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String value = extras.getString("message");
@@ -196,6 +196,7 @@ public class WakeUpAct extends Activity {
 
     public void showDialog() {
 
+        progressBar.setVisibility(View.VISIBLE);
         alert.show();
         messageView.setText("Loading");
     }
@@ -243,6 +244,8 @@ public class WakeUpAct extends Activity {
          //when the activiy pauses, we should realse the wakelock
     }
 
+
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -257,12 +260,12 @@ public class WakeUpAct extends Activity {
     }
 
 
-    private final BroadcastReceiver logout = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            finish();
-        }
-    };
+//    private final BroadcastReceiver logout = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            finish();
+//        }
+//    };
     private void makeJsonObjReq(String response) {
         SharedPreferences  sharedPreferences = getSharedPreferences(LoginActivity.LOGINDETAILS, Context.MODE_PRIVATE);
         final String Auth_key="ApiKey "+cab_no+":"+sharedPreferences.getString("auth_key","");
@@ -271,6 +274,8 @@ public class WakeUpAct extends Activity {
         postParam.put("success", response);
         postParam.put("user_id", user_id);
         postParam.put("client_name", clientname);
+        postParam.put("pickup_time", pickup_time);
+        postParam.put("phone", phoneno);
         JSONObject jsonObject = new JSONObject(postParam);
         Log.d("postpar", jsonObject.toString());
 

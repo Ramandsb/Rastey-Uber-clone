@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -211,15 +212,24 @@ public class NotifyService extends Service {
                 String latiString = Double.toString(loc.getLatitude());
                 String longiString = Double.toString(loc.getLongitude());
                 Log.d("Lat LOng", loc.getLatitude() + "  " + loc.getLongitude());
+                GeomagneticField field = new GeomagneticField(
+                        (float)loc.getLatitude(),
+                        (float)loc.getLongitude(),
+                        (float)loc.getAltitude(),
+                        System.currentTimeMillis()
+                );
+                float mDeclination = field.getDeclination();
                 intent.putExtra("Latitude", loc.getLatitude());
                 intent.putExtra("Longitude", loc.getLongitude());
                 intent.putExtra("Provider", loc.getProvider());
+                intent.putExtra("declination", mDeclination);
                 sendBroadcast(intent);
                 Log.d("values to check", latiString + "  " + longiString);
                 Intent i = new Intent("LOCATION_UPDATED");
                 i.putExtra("myLat", latiString);
                 i.putExtra("myLong", longiString);
                 sendBroadcast(i);
+
                 SharedPreferences sharedPref = getApplication().getSharedPreferences(LoginActivity.LOGINDETAILS,MODE_PRIVATE);
                String user=sharedPref.getString("auth_key", "");
                 if (putLatln) {
